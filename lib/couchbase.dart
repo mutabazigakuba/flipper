@@ -16,16 +16,18 @@ import 'package:uuid/uuid.dart';
 import 'model/user.dart';
 
 class CouchBase extends Model with Fluttercouch {
-  String databaseName;
-  Document docExample;
-  MutableDocument _doc = MutableDocument();
-  Query query;
- 
   CouchBase({bool shouldInitDb}) {
     if (shouldInitDb) {
       initPlatformState();
     }
   }
+
+  String databaseName;
+  Document docExample;
+  final MutableDocument _doc = MutableDocument();
+  Query query;
+ 
+  
 
   //create a branch
   Future<dynamic> createBranch(Map map) async {
@@ -41,17 +43,20 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['createdAt'] != null);
     assert(map['_id'] != null);
 
-    Document doc = await getDocumentWithId(map['_id']);
+    final Document doc = await getDocumentWithId(map['_id']);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List<Map> m = [map];
 
     doc.toMutable().setList('branches', m).setString('uid', Uuid().v1());
     // .setList('channels', [map['channel']]).setString('_id', map['_id']);
     return await saveDocumentWithId(map['_id'], doc);
   }
 
-  Future<dynamic> createTax(Map map) async {
-    Document doc = await getDocumentWithId(map['_id']);
+  // ignore: always_specify_types
+  Future<dynamic> createTax(map) async {
+    assert(map != null);
+    final Document doc = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['name'] != null);
@@ -62,7 +67,8 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['updatedAt'] != null);
     assert(map['businessId'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     doc.toMutable().setList('taxes', m).setString('uid', Uuid().v1());
     // .setList('channels', [map['channel']]).setString('_id', map['_id']);
 
@@ -70,9 +76,10 @@ class CouchBase extends Model with Fluttercouch {
   }
 
   //create business.
+  // ignore: always_specify_types
   Future<dynamic> createBusiness(Map map) async {
     //if user has business do nothing
-    Document doc = await getDocumentWithId(map['_id']);
+    final Document doc = await getDocumentWithId(map['_id']);
 
     assert(map['_id'] != null);
 
@@ -90,7 +97,8 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['updatedAt'] != null);
     assert(map['userId'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     doc
         .toMutable()
         .setList('businesses', m)
@@ -141,6 +149,7 @@ class CouchBase extends Model with Fluttercouch {
       return await saveDocumentWithId(map['_id'], mutableDocument);
     } else {
       _doc.setString('uid', Uuid().v1()).setString('_id', map['_id']);
+      // ignore: always_specify_types
       map.forEach((key, value) {
         if (value is int) {
           _doc.setInt(key, value);
@@ -210,9 +219,9 @@ class CouchBase extends Model with Fluttercouch {
   initPlatformState() async {
     try {
       // final storage = new FlutterSecureStorage();
-      // String sync_database = await storage.read(key: "sync_database");
-      // String sync_url = await storage.read(key: "sync_url");
-      // String channel = await storage.read(key: "channel");
+      // String sync_database = await storage.read(key: 'sync_database');
+      // String sync_url = await storage.read(key: 'sync_url');
+      // String channel = await storage.read(key: 'channel');
       // if (sync_database == null || sync_url == null) return;
 
       try {
@@ -225,8 +234,8 @@ class CouchBase extends Model with Fluttercouch {
       }
 
       //TODO(richard): enable this sync replication when user has paid.
-      // setReplicatorEndpoint("ws://${sync_url}/${sync_database}");
-      // setReplicatorType("PUSH_AND_PULL");
+      // setReplicatorEndpoint('ws://${sync_url}/${sync_database}');
+      // setReplicatorType('PUSH_AND_PULL');
 
       // setReplicatorSessionAuthentication(
       //     'b2dfb02940783371ea48881e9594ae0e0eb472d8');
@@ -248,7 +257,7 @@ class CouchBase extends Model with Fluttercouch {
       //https://blog.couchbase.com/document-conflicts-couchbase-mobile/
       //TODO(richard): to be tested alongside the desktop app,because when I edit data manually in dashboard it create conflict.
       //TODO(richard): experimenting with live Query.
-      // Query query = QueryBuilder.select([SelectResult.all()]).from("lagrace");
+      // Query query = QueryBuilder.select([SelectResult.all()]).from('lagrace');
 
       //start of the query:
       // query.execute();
@@ -256,7 +265,7 @@ class CouchBase extends Model with Fluttercouch {
       //     await query.addChangeListener((change) => {print(change)});
 
       // Query b = QueryBuilder.select([SelectResult.all()]).from('lagrace').where(
-      //     Expression.property("_id").equalTo(Expression.string('business_1')));
+      //     Expression.property('_id').equalTo(Expression.string('business_1')));
 
       // ResultSet results = await b.execute();
       // b.addChangeListener((change) => {print(change.results)});
@@ -265,6 +274,7 @@ class CouchBase extends Model with Fluttercouch {
     } on PlatformException {}
   }
 
+  // ignore: always_specify_types
   Future syncRemoteToLocal({Store<AppState> store}) async {
     //load branch products
 
@@ -329,15 +339,16 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncStockRLocal(Store<AppState> store) async {
-    Document stocks =
+    final Document stocks =
         await getDocumentWithId('stocks_' + store.state.userId.toString());
     if (stocks.getList('stocks') != null) {
-      for (var i = 0; i < stocks.getList('stocks').length; i++) {
-        StockTableData stock = await store.state.database.stockDao
+      for (int i = 0; i < stocks.getList('stocks').length; i++) {
+        final StockTableData stock = await store.state.database.stockDao
             .getById(id: stocks.getList('stocks')[i]['id']);
         // ignore:missing_required_param
-        StockTableData branchProductData = StockTableData(
+        final StockTableData branchProductData = StockTableData(
             id: stocks.getList('stocks')[i]['id'],
             supplyPrice: stocks.getList('stocks')[i]['supplyPrice'].toDouble(),
             retailPrice: stocks.getList('stocks')[i]['retailPrice'].toDouble(),
@@ -364,16 +375,17 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncVariantsRLocal(Store<AppState> store) async {
-    Document variants =
+    final Document variants =
         await getDocumentWithId('variants_' + store.state.userId.toString());
 
     if (variants.getList('variants') != null) {
-      for (var i = 0; i < variants.getList('variants').length; i++) {
-        VariationTableData variation = await store.state.database.variationDao
+      for (int i = 0; i < variants.getList('variants').length; i++) {
+        final VariationTableData variation = await store.state.database.variationDao
             .getVariationById(variantId: variants.getList('variants')[i]['id']);
         // ignore:missing_required_param
-        VariationTableData variationData = VariationTableData(
+        final VariationTableData variationData = VariationTableData(
             name: variants.getList('variants')[i]['name'],
             id: variants.getList('variants')[i]['id'],
             isActive: false,
@@ -395,16 +407,17 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncBranchRLocal(Store<AppState> store) async {
-    Document branch =
+    final Document branch =
         await getDocumentWithId('branches_' + store.state.userId.toString());
 
     if (branch.getList('branches') != null) {
-      for (var i = 0; i < branch.getList('branches').length; i++) {
-        BranchTableData brachi = await store.state.database.branchDao
+      for (int i = 0; i < branch.getList('branches').length; i++) {
+        final BranchTableData brachi = await store.state.database.branchDao
             .getBranchById(branchId: branch.getList('branches')[i]['id']);
 
-        BranchTableData businessTableData = BranchTableData(
+        final BranchTableData businessTableData = BranchTableData(
           id: branch.getList('branches')[i]['id'],
           name: branch.getList('branches')[i]['name'],
           isActive: branch.getList('branches')[i]['isActive'] ?? false,
@@ -422,15 +435,16 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncBusinessRLocal(Store<AppState> store) async {
-    Document business =
+    final Document business =
         await getDocumentWithId('business_' + store.state.userId.toString());
     if (business.getList('businesses') != null) {
-      for (var i = 0; i < business.getList('businesses').length; i++) {
-        BusinessTableData busine = await store.state.database.businessDao
+      for (int i = 0; i < business.getList('businesses').length; i++) {
+        final BusinessTableData busine = await store.state.database.businessDao
             .getBusinesById(id: business.getList('businesses')[i]['id']);
         // ignore:missing_required_param
-        BusinessTableData businessTableData = BusinessTableData(
+        final BusinessTableData businessTableData = BusinessTableData(
             active: business.getList('businesses')[i]['active'],
             name: business.getList('businesses')[i]['name'],
             id: business.getList('businesses')[i]['id'],
@@ -458,12 +472,13 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncCategoriesRLocal(Store<AppState> store) async {
-    Document categories =
+    final Document categories =
         await getDocumentWithId('categories_' + store.state.userId.toString());
     if (categories.getList('categories') != null) {
-      for (var i = 0; i < categories.getList('categories').length; i++) {
-        CategoryTableData category = await store.state.database.categoryDao
+      for (int i = 0; i < categories.getList('categories').length; i++) {
+        final CategoryTableData category = await store.state.database.categoryDao
             .getById(id: categories.getList('categories')[i]['id']);
         CategoryTableData categoryData;
         if (i == 1) {
@@ -500,16 +515,19 @@ class CouchBase extends Model with Fluttercouch {
     } else {
       //the remote did not work create it then offline sync them later
 
+      // ignore: flutter_style_todos
       //TODO(richard): remember to sync a custom category created local and tax to remote so other client can have them too.
-      if (store.state.branch == null) return;
-      CategoryTableData category =
+      if (store.state.branch == null) {
+        return;
+      }
+      final CategoryTableData category =
           await store.state.database.categoryDao.getCategoryByNameBranchId(
-        "custom",
+        'custom',
         store.state.branch.id,
       );
       if (category == null) {
         //ignore:missing_required_param
-        CategoryTableData categoryData = CategoryTableData(
+        final CategoryTableData categoryData = CategoryTableData(
             id: Uuid().v1(),
             name: 'custom',
             focused: true,
@@ -522,15 +540,16 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncTaxesRLocal(Store<AppState> store) async {
-    Document taxes =
+    final Document taxes =
         await getDocumentWithId('taxes_' + store.state.userId.toString());
     if (taxes.getList('taxes') != null) {
-      for (var i = 0; i < taxes.getList('taxes').length; i++) {
-        TaxTableData tax = await store.state.database.taxDao
+      for (int i = 0; i < taxes.getList('taxes').length; i++) {
+        final TaxTableData tax = await store.state.database.taxDao
             .getById(taxid: taxes.getList('taxes')[i]['id']);
         // ignore:missing_required_param
-        TaxTableData taxData = TaxTableData(
+        final TaxTableData taxData = TaxTableData(
             id: taxes.getList('taxes')[i]['id'],
             name: taxes.getList('taxes')[i]['name'],
             businessId: taxes.getList('taxes')[i]['businessId'],
@@ -574,12 +593,14 @@ class CouchBase extends Model with Fluttercouch {
     } else {
       //create them local for sync to remote later.
       //ignore:missing_required_param
-      if (store.state.currentActiveBusiness == null) return;
-      TaxTableData tax = await store.state.database.taxDao.getByName(
+      if (store.state.currentActiveBusiness == null) {
+        return;
+      }
+      final TaxTableData tax = await store.state.database.taxDao.getByName(
           businessId: store.state.currentActiveBusiness.id, name: 'Vat');
       if (tax == null) {
         //ignore:missing_required_param
-        TaxTableData taxData = TaxTableData(
+        final TaxTableData taxData = TaxTableData(
             id: Uuid().v1(),
             name: 'Vat',
             businessId: store.state.businessId,
@@ -591,7 +612,7 @@ class CouchBase extends Model with Fluttercouch {
         //dispatch default tax we are using:
         store.dispatch(
           DefaultTax(
-            tax: Tax((t) => t
+            tax: Tax((TaxBuilder t) => t
               ..name = taxData.name
               ..id = taxData.id
               ..isDefault = taxData.isDefault
@@ -601,7 +622,7 @@ class CouchBase extends Model with Fluttercouch {
         );
         await store.state.database.taxDao.insert(taxData);
         //ignore:missing_required_param
-        TaxTableData noVat = TaxTableData(
+        final TaxTableData noVat = TaxTableData(
             id: Uuid().v1(),
             name: 'No Tax',
             businessId: store.state.businessId,
@@ -615,52 +636,55 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncUnit(Store<AppState> store) async {
-    var units = [
-      {"name": "Per Item", "value": ""},
-      {"name": "Per Kilogram (kg)", "value": "kg"},
-      {"name": "Per Cup (c)", "value": "c"},
-      {"name": "Per Liter (l)", "value": "l"},
-      {"name": "Per Pound (lb)", "value": "lb"},
-      {"name": "Per Pint (pt)", "value": "pt"},
-      {"name": "Per Acre (ac)", "value": "ac"},
-      {"name": "Per Centimeter (cm)", "value": "cm"},
-      {"name": "Per Cubic Footer (cu ft)", "value": "cu ft"},
-      {"name": "Per Day (day)", "value": "day"},
-      {"name": "Footer (ft)", "value": "ft"},
-      {"name": "Per Gram (g)", "value": "g"},
-      {"name": "Per Hour (hr)", "value": "hr"},
-      {"name": "Per Minute (min)", "value": "min"},
-      {"name": "Per Acre (ac)", "value": "ac"},
-      {"name": "Per Cubic Inch (cu in)", "value": "cu in"},
-      {"name": "Per Cubic Yard (cu yd)", "value": "cu yd"},
-      {"name": "Per Fluid Ounce (fl oz)", "value": "fl oz"},
-      {"name": "Per Gallon (gal)", "value": "gal"},
-      {"name": "Per Inch (in)", "value": "in"},
-      {"name": "Per Kilometer (km)", "value": "km"},
-      {"name": "Per Meter (m)", "value": "m"},
-      {"name": "Per Mile (mi)", "value": "mi"},
-      {"name": "Per Milligram (mg)", "value": "mg"},
-      {"name": "Per Milliliter (mL)", "value": "mL"},
-      {"name": "Per Millimeter (mm)", "value": "mm"},
-      {"name": "Per Millisecond (ms)", "value": "ms"},
-      {"name": "Per Ounce (oz)", "value": "oz"},
-      {"name": "Per  Quart (qt)", "value": "qt"},
-      {"name": "Per Second (sec)", "value": "sec"},
-      {"name": "Per Shot (sh)", "value": "sh"},
-      {"name": "Per Square Centimeter (sq cm)", "value": "sq cm"},
-      {"name": "Per Square Foot (sq ft)", "value": "sq ft"},
-      {"name": "Per Square Inch (sq in)", "value": "sq in"},
-      {"name": "Per Square Kilometer (sq km)", "value": "sq km"},
-      {"name": "Per Square Meter (sq m)", "value": "sq m"},
-      {"name": "Per Square Mile (sq mi)", "value": "sq mi"},
-      {"name": "Per Square Yard (sq yd)", "value": "sq yd"},
-      {"name": "Per Stone (st)", "value": "st"},
-      {"name": "Per Yard (yd)", "value": "yd"}
+    // ignore: always_specify_types
+    final List<Map<String, String>> units = [
+      // ignore: always_specify_types
+      {'name': 'Per Item', 'value': ''},
+      {'name': 'Per Kilogram (kg)', 'value': 'kg'},
+      {'name': 'Per Cup (c)', 'value': 'c'},
+      {'name': 'Per Liter (l)', 'value': 'l'},
+      {'name': 'Per Pound (lb)', 'value': 'lb'},
+      {'name': 'Per Pint (pt)', 'value': 'pt'},
+      {'name': 'Per Acre (ac)', 'value': 'ac'},
+      {'name': 'Per Centimeter (cm)', 'value': 'cm'},
+      {'name': 'Per Cubic Footer (cu ft)', 'value': 'cu ft'},
+      {'name': 'Per Day (day)', 'value': 'day'},
+      {'name': 'Footer (ft)', 'value': 'ft'},
+      {'name': 'Per Gram (g)', 'value': 'g'},
+      {'name': 'Per Hour (hr)', 'value': 'hr'},
+      {'name': 'Per Minute (min)', 'value': 'min'},
+      {'name': 'Per Acre (ac)', 'value': 'ac'},
+      {'name': 'Per Cubic Inch (cu in)', 'value': 'cu in'},
+      {'name': 'Per Cubic Yard (cu yd)', 'value': 'cu yd'},
+      {'name': 'Per Fluid Ounce (fl oz)', 'value': 'fl oz'},
+      {'name': 'Per Gallon (gal)', 'value': 'gal'},
+      {'name': 'Per Inch (in)', 'value': 'in'},
+      {'name': 'Per Kilometer (km)', 'value': 'km'},
+      {'name': 'Per Meter (m)', 'value': 'm'},
+      {'name': 'Per Mile (mi)', 'value': 'mi'},
+      {'name': 'Per Milligram (mg)', 'value': 'mg'},
+      {'name': 'Per Milliliter (mL)', 'value': 'mL'},
+      {'name': 'Per Millimeter (mm)', 'value': 'mm'},
+      {'name': 'Per Millisecond (ms)', 'value': 'ms'},
+      {'name': 'Per Ounce (oz)', 'value': 'oz'},
+      {'name': 'Per  Quart (qt)', 'value': 'qt'},
+      {'name': 'Per Second (sec)', 'value': 'sec'},
+      {'name': 'Per Shot (sh)', 'value': 'sh'},
+      {'name': 'Per Square Centimeter (sq cm)', 'value': 'sq cm'},
+      {'name': 'Per Square Foot (sq ft)', 'value': 'sq ft'},
+      {'name': 'Per Square Inch (sq in)', 'value': 'sq in'},
+      {'name': 'Per Square Kilometer (sq km)', 'value': 'sq km'},
+      {'name': 'Per Square Meter (sq m)', 'value': 'sq m'},
+      {'name': 'Per Square Mile (sq mi)', 'value': 'sq mi'},
+      {'name': 'Per Square Yard (sq yd)', 'value': 'sq yd'},
+      {'name': 'Per Stone (st)', 'value': 'st'},
+      {'name': 'Per Yard (yd)', 'value': 'yd'}
     ];
-    for (var i = 0; i < units.length; i++) {
+    for (int i = 0; i < units.length; i++) {
       //insert or update unit in table set focus to false for all.
-      UnitTableData unit = await store.state.database.unitDao
+      final UnitTableData unit = await store.state.database.unitDao
           .getUnitByName(name: units[i]['name']);
 
       UnitTableData unitTableData;
@@ -690,15 +714,16 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncProductRLocal(Store<AppState> store) async {
-    Document doc =
+    final Document doc =
         await getDocumentWithId('products_' + store.state.userId.toString());
     if (doc.getList('products') != null) {
-      for (var i = 0; i < doc.getList('products').length; i++) {
-        ProductTableData product = await store.state.database.productDao
+      for (int i = 0; i < doc.getList('products').length; i++) {
+        final ProductTableData product = await store.state.database.productDao
             .getItemById(productId: doc.getList('products')[i]['id']);
         // ignore:missing_required_param
-        ProductTableData productData = ProductTableData(
+        final ProductTableData productData = ProductTableData(
             businessId: doc.getList('products')[i]['businessId'].toString(),
             active: doc.getList('products')[i]['active'],
             isImageLocal: false,
@@ -726,20 +751,21 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncBranchProductRLocal(Store<AppState> store) async {
-    Document branchProducts = await getDocumentWithId(
+    final Document branchProducts = await getDocumentWithId(
         'branchProducts_' + store.state.userId.toString());
     if (branchProducts.getList('branchProducts') != null) {
-      for (var i = 0;
+      for (int i = 0;
           i < branchProducts.getList('branchProducts').length;
           i++) {
-        BranchProductTableData branchProduct = await store
+        final BranchProductTableData branchProduct = await store
             .state.database.branchProductDao
             .getById(id: branchProducts.getList('branchProducts')[i]['id']);
-        BranchProductTableData branchProductData = BranchProductTableData(
+        final BranchProductTableData branchProductData = BranchProductTableData(
           id: branchProducts.getList('branchProducts')[i]['id'],
           branchId: branchProducts.getList('branchProducts')[i]['branchId'],
-          productId: branchProducts.getList('branchProducts')[i]['productId'],
+          productId: branchProducts.getList('branchProducts')[i]['productId'], idLocal: 1,
         );
 
         if (branchProduct == null) {
@@ -755,13 +781,14 @@ class CouchBase extends Model with Fluttercouch {
   //return
   //FIXME: this worked but could not
   Stream<dynamic> getDocumentByQuery(Store<AppState> store) async* {
-    Query query = QueryBuilder.select([SelectResult.all()])
+    final Query query = QueryBuilder.select([SelectResult.all()])
         .from(store.state.couchDbClient.name)
-        .where(Expression.property("_id")
+        .where(Expression.property('_id')
             .equalTo(Expression.string('businesses')));
 
-    ResultSet results = await query.execute();
-    query.addChangeListener((change) => {
+    final ResultSet results = await query.execute();
+    // ignore: always_specify_types
+    query.addChangeListener((QueryChange change) => {
           // if(change.results != null)
           //   {
           print(change.results)
@@ -778,7 +805,7 @@ class CouchBase extends Model with Fluttercouch {
 
   User buildUserModel(Document doc, Store<AppState> store) {
     return User(
-      (u) => u
+      (UserBuilder u) => u
         ..id = doc.getString('id')
         ..email = doc.getString('email')
         ..name = doc.getString('name')
@@ -790,12 +817,14 @@ class CouchBase extends Model with Fluttercouch {
   }
 
   List<Business> buildBusinessModel(Document doc, Store<AppState> store) {
-    List<Business> business = [];
-    var business_ = 'businesses';
+    final List<Business> business = [];
+    const String business_ = 'businesses';
 
-    if (doc.getList(business_) == null) return business;
+    if (doc.getList(business_) == null) {
+      return business;
+    }
 
-    for (var i = 0; i < doc.getList(business_).length; i++) {
+    for (int i = 0; i < doc.getList(business_).length; i++) {
       business.add(Business((b) => b
         ..name = doc.getList(business_)[i]['name']
         ..id = doc.getList(business_)[i]['id']
@@ -813,15 +842,17 @@ class CouchBase extends Model with Fluttercouch {
     return business;
   }
 
-  List<Product> buildProduct(Document doc, Store<AppState> store) {}
+  // ignore: missing_return
+  Future<List<Product>> buildProduct(Document doc, Store<AppState> store) async {}
 
   List<Branch> buildBranchModel(Document doc, Store<AppState> store) {
-    List<Branch> branch = [];
-    var branch_ = 'branches';
+    // ignore: always_specify_types
+    final List<Branch> branch = [];
+    const String branch_ = 'branches';
 
     if (doc.getList(branch_) == null) return branch;
-    for (var i = 0; i < doc.getList('branches').length; i++) {
-      branch.add(Branch((b) => b
+    for (int i = 0; i < doc.getList('branches').length; i++) {
+      branch.add(Branch((BranchBuilder b) => b
         ..name = doc.getList(branch_)[i]['name']
         ..id = doc.getList(branch_)[i]['id']
         ..active = doc.getList(branch_)[i]['active']
@@ -837,9 +868,10 @@ class CouchBase extends Model with Fluttercouch {
     return branch;
   }
 
-  Future<dynamic> createProduct(Map map) async {
+  // ignore: always_specify_types
+  Future<dynamic> createProduct(map) async {
     assert(map['_id'] != null);
-    Document products = await getDocumentWithId(map['_id']);
+    final Document products = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['name'] != null);
@@ -857,7 +889,8 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['createdAt'] != null);
     assert(map['updatedAt'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     // List m2 = products.getList('products');
     // m2.addAll(m);
     products
@@ -872,7 +905,7 @@ class CouchBase extends Model with Fluttercouch {
 
   Future<dynamic> createVariant(Map map) async {
     assert(map['_id'] != null);
-    Document variants = await getDocumentWithId(map['_id']);
+    final Document variants = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['SKU'] != null);
@@ -882,7 +915,8 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['createdAt'] != null);
     assert(map['updatedAt'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     // List m2 = variants.getList('variants');
     // m.addAll(m2);
 
@@ -898,14 +932,15 @@ class CouchBase extends Model with Fluttercouch {
 
   Future<dynamic> createBranchProduct(Map map) async {
     assert(map['_id'] != null);
-    Document branchProducts = await getDocumentWithId(map['_id']);
+    final Document branchProducts = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['productId'] != null);
     assert(map['branchId'] != null);
     assert(map['id'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     // List m2 = branchProducts.getList('branchProducts');
     // m.addAll(m2);
 
@@ -919,9 +954,10 @@ class CouchBase extends Model with Fluttercouch {
     return await saveDocumentWithId(map['_id'], branchProducts);
   }
 
-  Future<dynamic> createStockHistory(Map map) async {
+  // ignore: always_specify_types
+  Future<dynamic> createStockHistory(map) async {
     assert(map['_id'] != null);
-    Document history = await getDocumentWithId(map['_id']);
+    final Document history = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['variantId'] != null);
@@ -933,7 +969,8 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['createdAt'] != null);
     assert(map['id'] != null);
 
-    List m = [map];
+    // ignore: always_specify_types
+    final List m = [map];
     // List m2 = history.getList('stockHistory');
     // m.addAll(m2);
 
@@ -949,7 +986,7 @@ class CouchBase extends Model with Fluttercouch {
 
   Future<dynamic> createStock(Map map) async {
     assert(map['_id'] != null);
-    Document stocks = await getDocumentWithId(map['_id']);
+    final Document stocks = await getDocumentWithId(map['_id']);
 
     assert(map['channel'] != null);
     assert(map['productId'] != null);
@@ -967,9 +1004,9 @@ class CouchBase extends Model with Fluttercouch {
     assert(map['createdAt'] != null);
     assert(map['updatedAt'] != null);
 
-    List m = [map];
-    // List m2 = stocks.getList('stocks');
-    // m.addAll(m2);
+    // ignore: always_specify_types
+    final List m = [map];
+    
 
     stocks
         .toMutable()
@@ -1008,16 +1045,19 @@ class CouchBase extends Model with Fluttercouch {
     }
   }
 
+  // ignore: always_specify_types
   Future syncBranchProductLRemote(Store<AppState> store) async {
-    List<BranchProductTableData> branchProducts =
+    final List<BranchProductTableData> branchProducts =
         await store.state.database.branchProductDao.branchProducts();
 
-    Document bP = await getDocumentWithId(
+    final Document bP = await getDocumentWithId(
         'branchProducts_' + store.state.userId.toString());
 
-    List mapTypeListBranchProducts = [];
-    for (var i = 0; i < branchProducts.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final List mapTypeListBranchProducts = [];
+    for (int i = 0; i < branchProducts.length; i++) {
+      // ignore: always_specify_types
+      final map = {
         'branchId': branchProducts[i].branchId,
         'id': branchProducts[i].id,
         'productId': branchProducts[i].productId,
@@ -1037,15 +1077,19 @@ class CouchBase extends Model with Fluttercouch {
   }
 
   Future<Document> syncStockLRemote(Store<AppState> store) async {
+    // ignore: prefer_final_locals
     List<StockTableData> stocks =
         await store.state.database.stockDao.getStocks();
 
+    // ignore: prefer_final_locals
     Document stock =
         await getDocumentWithId('stocks_' + store.state.userId.toString());
 
+    // ignore: prefer_final_locals
     List mapTypeListStocks = [];
+    // ignore: always_specify_types
     for (var i = 0; i < stocks.length; i++) {
-      Map map = {
+      final Map<String, Object> map = {
         'currentStock': stocks[i].currentStock,
         'id': stocks[i].id,
         'lowStock': stocks[i].lowStock,
@@ -1074,23 +1118,24 @@ class CouchBase extends Model with Fluttercouch {
     return stock;
   }
 
+  // ignore: always_specify_types
   Future syncProductsLRemote(Store<AppState> store) async {
-    List<ProductTableData> products =
+    final List<ProductTableData> products =
         await store.state.database.productDao.getProducts();
 
-    Document product =
+    final Document product =
         await getDocumentWithId('products_' + store.state.userId.toString());
 
-    List mapTypeListProducts = [];
-    for (var i = 0; i < products.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final List mapTypeListProducts = [];
+    for (int i = 0; i < products.length; i++) {
+      final Map<String, Object> map = {
         'name': products[i].name,
         'id': products[i].id,
         'color': products[i].color,
         'picture': products[i].picture,
         'active': products[i].active,
         'hasPicture': products[i].hasPicture,
-        'id': products[i].id,
         'isDraft': products[i].isDraft,
         'isCurrentUpdate': products[i].isCurrentUpdate,
         'description': products[i].description,
@@ -1119,15 +1164,16 @@ class CouchBase extends Model with Fluttercouch {
 
   Future<List<VariationTableData>> syncVariantLRemote(
       Store<AppState> store) async {
-    List<VariationTableData> variations =
+    final List<VariationTableData> variations =
         await store.state.database.variationDao.getVariations();
 
-    Document variant =
+    final Document variant =
         await getDocumentWithId('variants_' + store.state.userId.toString());
 
-    List mapTypeListVariants = [];
-    for (var i = 0; i < variations.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final List mapTypeListVariants = [];
+    for (int i = 0; i < variations.length; i++) {
+      final Map<String, String> map = {
         'name': variations[i].name,
         'id': variations[i].id,
         'sku': variations[i].sku,
@@ -1153,6 +1199,7 @@ class CouchBase extends Model with Fluttercouch {
     return variations;
   }
 
+  // ignore: always_specify_types
   Future syncOrderLRemote(Store<AppState> store) async {
     await syncOrderDetailLRemote(store);
     await syncOrdersLRemote(store);
@@ -1160,16 +1207,18 @@ class CouchBase extends Model with Fluttercouch {
     await syncStockLRemote(store);
   }
 
+  // ignore: always_specify_types
   Future syncOrderDetailLRemote(Store<AppState> store) async {
-    List<OrderDetailTableData> orderDetails =
+    final List<OrderDetailTableData> orderDetails =
         await store.state.database.orderDetailDao.getCarts();
 
-    Document orderDetail = await getDocumentWithId(
+    final Document orderDetail = await getDocumentWithId(
         'orderDetails_' + store.state.userId.toString());
 
-    List mapOrderDetail = [];
-    for (var i = 0; i < orderDetails.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final mapOrderDetail = [];
+    for (int i = 0; i < orderDetails.length; i++) {
+      final Map<String, Object> map = {
         'id': orderDetails[i].id,
         'branchId': orderDetails[i].branchId,
         'discountRate': orderDetails[i].discountRate,
@@ -1201,16 +1250,18 @@ class CouchBase extends Model with Fluttercouch {
         'orderDetails_' + store.state.userId.toString(), orderDetail);
   }
 
+  // ignore: always_specify_types
   Future syncOrdersLRemote(Store<AppState> store) async {
-    List<OrderTableData> orders =
+    final List<OrderTableData> orders =
         await store.state.database.orderDao.getOrders();
 
-    Document order =
+    final Document order =
         await getDocumentWithId('orders_' + store.state.userId.toString());
 
-    List mapOrders = [];
-    for (var i = 0; i < orders.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final List mapOrders = [];
+    for (int i = 0; i < orders.length; i++) {
+      final Map<String, Object> map = {
         'id': orders[i].id,
         'userId': orders[i].userId,
         'branchId': orders[i].branchId,
@@ -1251,15 +1302,17 @@ class CouchBase extends Model with Fluttercouch {
     await saveDocumentWithId('orders_' + store.state.userId.toString(), order);
   }
 
+  // ignore: always_specify_types
   Future syncBusinessLRemote(Store<AppState> store) async {
-    List<BusinessTableData> businesses =
+    final List<BusinessTableData> businesses =
         await store.state.database.businessDao.getBusinesses();
 
-    Document business =
+    final Document business =
         await getDocumentWithId('business_' + store.state.userId.toString());
-    List mapTypeListBusiness = [];
-    for (var i = 0; i < businesses.length; i++) {
-      Map map = {
+    // ignore: always_specify_types
+    final List mapTypeListBusiness = [];
+    for (int i = 0; i < businesses.length; i++) {
+      final Map<String, Object> map = {
         'name': businesses[i].name,
         'id': businesses[i].id,
         'active': businesses[i].active,
@@ -1289,14 +1342,15 @@ class CouchBase extends Model with Fluttercouch {
         'business_' + store.state.userId.toString(), business);
   }
 
+  // ignore: always_specify_types
   Future syncProduct(String productId, Store<AppState> store) async {
     //get product sync it to couch db
     //get product variants sync them too
     //get stock of each variant and sync them each to couch
-    ProductTableData product = await store.state.database.productDao
+    final ProductTableData product = await store.state.database.productDao
         .getProductById(productId: productId);
 
-    Map _mapProduct = {
+    final Map<String, Object> _mapProduct = {
       'active': product.active,
       'name': product.name,
       'id': product.id,
@@ -1319,12 +1373,12 @@ class CouchBase extends Model with Fluttercouch {
     await createProduct(_mapProduct);
 
     //sync variants
-    List<VariationTableData> variations = await store
+    final List<VariationTableData> variations = await store
         .state.database.variationDao
         .getVariantByProductId(productId: productId);
 
-    for (var i = 0; i < variations.length; i++) {
-      Map _mapVariant = {
+    for (int i = 0; i < variations.length; i++) {
+      final Map<String, String> _mapVariant = {
         'name': variations[i].name,
         'productId': variations[i].productId,
         'id': variations[i].id,
@@ -1336,15 +1390,15 @@ class CouchBase extends Model with Fluttercouch {
         '_id': 'variants_' + store.state.userId.toString(),
       };
       //sync stock:
-      StockTableData stock = await store.state.database.stockDao
+      final StockTableData stock = await store.state.database.stockDao
           .getStockByVariantId(
               variantId: variations[i].id, branchId: store.state.branch.id);
 
       //sync stock history:
-      StockHistoryTableData history = await store.state.database.stockHistoryDao
+      final StockHistoryTableData history = await store.state.database.stockHistoryDao
           .getByVariantId(variantId: variations[i].id);
       if (history != null) {
-        Map _history = {
+        final Map<String, Object> _history = {
           'variantId': history.variantId,
           'stockId': history.stockId,
           'quantity': history.quantity,
@@ -1359,7 +1413,8 @@ class CouchBase extends Model with Fluttercouch {
         await createStockHistory(_history);
       }
 
-      Map _mapStock = {
+      // ignore: always_specify_types
+      final Map _mapStock = {
         'branchId': stock.branchId,
         'productId': productId,
         'createdAt': stock.createdAt.toIso8601String(),
@@ -1382,16 +1437,15 @@ class CouchBase extends Model with Fluttercouch {
 
     //sync branchProduct:
 
-    BranchProductTableData branchProduct = await store
+    final BranchProductTableData branchProduct = await store
         .state.database.branchProductDao
         .getBranchProduct(productId: productId);
-    Map _mapBranchProduct = {
+    final  Map<String, String> _mapBranchProduct = {
       'id': branchProduct.id,
       'branchId': branchProduct.branchId,
       'productId': branchProduct.productId,
       'channel': store.state.userId.toString(),
       '_id': 'branchProducts_' + store.state.userId.toString(),
-      'branchId': branchProduct.branchId
     };
     await createBranchProduct(_mapBranchProduct);
   }
@@ -1399,7 +1453,8 @@ class CouchBase extends Model with Fluttercouch {
   //database listners, provide listners for database then sync
   //the data being touched or inserted this is the most effective way
   //of syncing small database changes so we can avoid 1MB constraints of couchDB.
-  dbListner({Store<AppState> store}) {
+  // ignore: always_declare_return_types
+  dbListner({Store<AppState> store}) async {
     store.state.database.listner.streamUpdate().listen((stock) {
       if (stock != null && stock.action != 'NONE') {
         insertHistory(store, stock);
@@ -1434,12 +1489,14 @@ class CouchBase extends Model with Fluttercouch {
     );
   }
 
+  // ignore: always_declare_return_types
   partialSyncHistory(
       {StockHistoryTableData history, Store<AppState> store}) async {
-    Document histo = await getDocumentWithId(
+    final Document histo = await getDocumentWithId(
         'stockHistory_' + store.state.userId.toString());
-    List mapHistory = [];
-    Map map = {
+    // ignore: always_specify_types
+    final  List mapHistory = [];
+    final Map<String, Object> map = {
       'id': history.id,
       'stockId': history.id,
       'reason': history.reason,

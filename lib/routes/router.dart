@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:auto_route/auto_route_annotations.dart';
 import 'package:flipper/debug.dart';
 import 'package:flipper/home/add_category_screen.dart';
@@ -33,95 +32,78 @@ import 'package:flipper/presentation/splash/aftersplash.dart';
 import 'package:flipper/presentation/splash/splash_screen.dart';
 import 'package:flipper/presentation/subscription.dart';
 
-@MaterialAutoRouter()
-class $Router {
-  @initial
-  SplashScreen splashScreen;
-  DashBoard dashboard;
-  @MaterialRoute(fullscreenDialog: true)
-  AfterSplash afterSplash;
-  @MaterialRoute(fullscreenDialog: true)
-  AddNoteScreen addNoteScreen;
-  // @MaterialRoute(fullscreenDialog: true)
-  // SaleScreen saleScreen;
+@MaterialAutoRouter(routes: <AutoRoute>[
+   // ignore: always_specify_types
+   MaterialRoute(page: SplashScreen, initial: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: DashBoard),
+   // ignore: always_specify_types
+   MaterialRoute(page: LoginScreen),
+   // ignore: always_specify_types
+   MaterialRoute(page: AfterSplash,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AddNoteScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: SettingUpApplicationScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: SignUpScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: SignUpScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CreateBusinessScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CreateBusinessScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AddProductScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: EditItemTitle,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AddVariationScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AddUnitTypeScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AddCategoryScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CreateCategoryInputScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: ReceiveStockScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: ChangeQuantityForSelling,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CartDetailsScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AllItemScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: ViewProductsScreen),
+   // ignore: always_specify_types
+   MaterialRoute(page: ViewSingleItemScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: EditVariationScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: EditCategoryScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: EditUnitTypeScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: EditUnitTypeScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: TransactionScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: AuthWebView,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: ReportScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: TenderScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: DateScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CompleteSaleScreen,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: Subscription,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: CameraPreview,fullscreenDialog: true),
+   // ignore: always_specify_types
+   MaterialRoute(page: Debug,fullscreenDialog: true),
+])
+class $Router {}
 
-  @MaterialRoute(fullscreenDialog: true)
-  SettingUpApplicationScreen settingUpApplicationScreen;
 
-  @CustomRoute(
-      transitionsBuilder: TransitionsBuilders.slideLeft,
-      durationInMilliseconds: 200)
-  @MaterialRoute(fullscreenDialog: true)
-  SignUpScreen signUpScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  CreateBusinessScreen createBusiness;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AddProductScreen addItemScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  EditItemTitle editItemTitle;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AddVariationScreen addVariationScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AddUnitTypeScreen addUnitType;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AddCategoryScreen addCategoryScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  CreateCategoryInputScreen createCategoryInputScreen;
-
-  // @MaterialRoute(fullscreenDialog: true)
-  ReceiveStockScreen receiveStock;
-
-  @MaterialRoute(fullscreenDialog: true)
-  ChangeQuantityForSelling editQuantityItemScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  CartDetailsScreen cartDetailsScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AllItemScreen allItemScreen;
-
-  ViewProductsScreen viewItemsScreen;
-  LoginScreen login;
-
-  @MaterialRoute(fullscreenDialog: true)
-  ViewSingleItemScreen viewSingleItem;
-
-  EditVariationScreen editVariationScreen;
-
-  EditCategoryScreen editCategoryScreen;
-
-  EditUnitTypeScreen editUnitType;
-
-  TransactionScreen transactionScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  AuthWebView webView;
-
-  @MaterialRoute(fullscreenDialog: true)
-  ReportScreen reportScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  DateScreen dateScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  CompleteSaleScreen completeSaleScreen;
-
-  @MaterialRoute(fullscreenDialog: true)
-  TenderScreen tenderScreen;
-
-  Subscription subscription;
-
-  @MaterialRoute(fullscreenDialog: true)
-  CameraPreview cameraPreview;
-
-  @MaterialRoute(fullscreenDialog: true)
-  Debug debug;
-
-}

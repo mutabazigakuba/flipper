@@ -28,19 +28,11 @@ import 'domain/redux/push/push_actions.dart';
 import 'domain/redux/push/push_middleware.dart';
 
 Future<dynamic> backgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
+  dynamic notification;
   if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
+    notification = message['notification'];
   }
-
-  // Or do other work.
-  // throw 422;
-
+  return notification;
 }
 
 class FlipperApp extends StatefulWidget {
@@ -68,6 +60,7 @@ class _FlipperAppState extends State<FlipperApp> {
     super.didChangeDependencies();
     await store.state.couch.syncRemoteToLocal(store: store);
   }
+
 
   @override
   void initState() {

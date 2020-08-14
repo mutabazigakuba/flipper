@@ -29,7 +29,7 @@ class Manager {
         msg: 'feature deprecated need re-work',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
+       
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);

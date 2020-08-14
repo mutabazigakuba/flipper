@@ -59,13 +59,13 @@ class _LandscapeButtonState extends State<LandscapeButton> {
                           );
                         } else {
                           Fluttertoast.showToast(
-                              msg: 'There is a problem launching login url',
-                              toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIos: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
+                            msg: 'There is a problem launching login url',
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                          );
                         }
                       }
                     } on SocketException catch (_) {
@@ -73,7 +73,6 @@ class _LandscapeButtonState extends State<LandscapeButton> {
                         msg: 'There is no internet',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.BOTTOM,
-                        timeInSecForIos: 1,
                         backgroundColor: Colors.red,
                         textColor: Colors.white,
                         fontSize: 16.0,
@@ -107,7 +106,6 @@ class _LandscapeButtonState extends State<LandscapeButton> {
                         msg: 'Got a Here 1...',
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.BOTTOM,
-                        timeInSecForIos: 1,
                         backgroundColor: Colors.red,
                         textColor: Colors.white,
                         fontSize: 16.0);
