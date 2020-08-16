@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/routes/router.gr.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,8 @@ class _CameraPreviewState extends State<CameraPreview> {
     return Scaffold(
       appBar: CommonAppBar(
         onPop: () {
-          Router.navigator.pop();
+          ExtendedNavigator.of(context).pop();
+          
         },
         title: 'Preview',
         icon: Icons.keyboard_backspace,

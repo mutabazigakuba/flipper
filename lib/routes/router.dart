@@ -32,7 +32,9 @@ import 'package:flipper/presentation/splash/aftersplash.dart';
 import 'package:flipper/presentation/splash/splash_screen.dart';
 import 'package:flipper/presentation/subscription.dart';
 
-@MaterialAutoRouter(routes: <AutoRoute>[
+@MaterialAutoRouter(
+  // ignore: always_specify_types
+  routes: <AutoRoute>[
    // ignore: always_specify_types
    MaterialRoute(page: SplashScreen, initial: true),
    // ignore: always_specify_types
@@ -47,10 +49,7 @@ import 'package:flipper/presentation/subscription.dart';
    MaterialRoute(page: SettingUpApplicationScreen,fullscreenDialog: true),
    // ignore: always_specify_types
    MaterialRoute(page: SignUpScreen,fullscreenDialog: true),
-   // ignore: always_specify_types
-   MaterialRoute(page: SignUpScreen,fullscreenDialog: true),
-   // ignore: always_specify_types
-   MaterialRoute(page: CreateBusinessScreen,fullscreenDialog: true),
+   
    // ignore: always_specify_types
    MaterialRoute(page: CreateBusinessScreen,fullscreenDialog: true),
    // ignore: always_specify_types
@@ -84,8 +83,6 @@ import 'package:flipper/presentation/subscription.dart';
    // ignore: always_specify_types
    MaterialRoute(page: EditUnitTypeScreen,fullscreenDialog: true),
    // ignore: always_specify_types
-   MaterialRoute(page: EditUnitTypeScreen,fullscreenDialog: true),
-   // ignore: always_specify_types
    MaterialRoute(page: TransactionScreen,fullscreenDialog: true),
    // ignore: always_specify_types
    MaterialRoute(page: AuthWebView,fullscreenDialog: true),
@@ -104,6 +101,6 @@ import 'package:flipper/presentation/subscription.dart';
    // ignore: always_specify_types
    MaterialRoute(page: Debug,fullscreenDialog: true),
 ])
-class $Router {}
+class $Routing {}
 
 

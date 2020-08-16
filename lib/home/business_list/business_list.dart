@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/domain/redux/business/business_actions.dart';
 import 'package:flipper/model/business.dart';
@@ -68,13 +69,15 @@ class _BusinessListState extends State<BusinessList> {
                 //TODO(richard):show a toast here that we can not create additional business...
                 return;
               }
-              Router.navigator.pushNamed(Router.createBusiness);
+              // allItemScreen
+              ExtendedNavigator.of(context).push(Routes.createBusinessScreen);
+              
             }),
           ],
         ));
   }
 
-  _buildFourthSection(BuildContext context) {
+  Container _buildFourthSection(BuildContext context) {
     return Container(
       height: _Style.fourthSectionHeight,
       child: Column(

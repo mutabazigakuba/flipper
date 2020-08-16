@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
@@ -62,7 +63,7 @@ class _EditVariationScreenState extends State<EditVariationScreen> {
             return Scaffold(
               appBar: CommonAppBar(
                 onPop: () {
-                  Router.navigator.pop();
+                  ExtendedNavigator.of(context).pop();
                 },
                 title: S.of(context).editVariation,
                 showActionButton: true,
@@ -70,7 +71,7 @@ class _EditVariationScreenState extends State<EditVariationScreen> {
                 actionButtonName: S.of(context).save,
                 onPressedCallback: () async {
                   updateVariation(snapshot.data[0], context);
-                  Router.navigator.pop(true);
+                  ExtendedNavigator.of(context).pop();
                 },
                 icon: Icons.close,
                 multi: 3,
@@ -317,6 +318,6 @@ class _EditVariationScreenState extends State<EditVariationScreen> {
   void _closeAndDelete(BuildContext context) async {
     final store = StoreProvider.of<AppState>(context);
     // Util.deleteVariant(store, widget.variationId);
-    Router.navigator.pop(true);
+    ExtendedNavigator.of(context).pop();
   }
 }

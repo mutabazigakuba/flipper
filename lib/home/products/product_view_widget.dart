@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_actions/actions.dart';
 import 'package:flipper/domain/redux/app_state.dart';
@@ -127,9 +128,10 @@ class _ProductsViewState extends State<ProductsView> {
 
     dispatchCurrentProductVariants(context, variants, products, i);
 
-    Router.navigator.pushNamed(Router.editQuantityItemScreen,
-        arguments:
-            ChangeQuantityForSellingArguments(productId: products[i].id));
+    ExtendedNavigator.of(context).push(Routes.changeQuantityForSelling,
+    arguments:
+            ChangeQuantityForSellingArguments(productId: products[i].id)
+    );
   }
 
   void dispatchCurrentProductVariants(BuildContext context,
@@ -206,14 +208,14 @@ class _ProductsViewState extends State<ProductsView> {
         ),
       ),
     );
-    Router.navigator.pushNamed(
-      Router.viewSingleItem,
-      arguments: ViewSingleItemScreenArguments(
+    ExtendedNavigator.of(context).push(Routes.viewSingleItemScreen,
+       arguments: ViewSingleItemScreenArguments(
         productId: products[i].id,
         itemName: products[i].name,
         itemColor: products[i].color,
-      ),
+      )
     );
+    
   }
 
   void itemRow(List<Widget> list, BuildContext context) {

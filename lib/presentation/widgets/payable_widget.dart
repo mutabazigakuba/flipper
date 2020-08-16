@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
@@ -52,8 +53,8 @@ class _PayableWidgetState extends State<PayableWidget> {
                   FlatButton(
                       color: HexColor(FlipperColors.blue),
                       onPressed: () {
-                        Router.navigator.pushNamed(
-                          Router.completeSaleScreen,
+                        ExtendedNavigator.of(context).push(
+                          Routes.completeSaleScreen,
                           arguments: CompleteSaleScreenArguments(
                             cashReceived: cashReceived,
                           ),

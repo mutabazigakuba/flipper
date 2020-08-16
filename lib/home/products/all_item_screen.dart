@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/generated/l10n.dart';
 import 'package:flipper/routes/router.gr.dart';
@@ -16,7 +17,7 @@ class _AllItemScreenState extends State<AllItemScreen> {
     return Scaffold(
         appBar: CommonAppBar(
           onPop: () {
-            Router.navigator.pop();
+            ExtendedNavigator.of(context).pop();
           },
           title: S.of(context).items,
           showActionButton: false,
@@ -30,7 +31,8 @@ class _AllItemScreenState extends State<AllItemScreen> {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                Router.navigator.pushNamed(Router.viewItemsScreen);
+                
+                ExtendedNavigator.of(context).push(Routes.viewProductsScreen);
               },
               child: ListTile(
                 title: Text('All Items', style: TextStyle(color: Colors.black)),

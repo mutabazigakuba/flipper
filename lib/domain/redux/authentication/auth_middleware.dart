@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flipper/couchbase.dart';
 import 'package:flipper/data/main_database.dart';
@@ -38,19 +39,20 @@ List<Middleware<AppState>> createAuthenticationMiddleware(
   BranchRepository branchRepository,
   GeneralRepository generalRepository,
   GlobalKey<NavigatorState> navigatorKey,
+  BuildContext context,
 ) {
   return [
-    TypedMiddleware<AppState, VerifyAuthenticationState>(_verifyAuthState(
-        userRepository,
-        businessRepository,
-        branchRepository,
-        generalRepository,
-        navigatorKey)),
+    TypedMiddleware<AppState, VerifyAuthenticationState>(
+      _verifyAuthState(userRepository, businessRepository, branchRepository,
+          generalRepository, navigatorKey, context),
+    ),
     TypedMiddleware<AppState, LogIn>(_authLogin(userRepository, navigatorKey)),
     TypedMiddleware<AppState, LogOutAction>(
         _authLogout(userRepository, navigatorKey)),
-    TypedMiddleware<AppState, AfterLoginAction>(_verifyAuthState(userRepository,
-        businessRepository, branchRepository, generalRepository, navigatorKey)),
+    TypedMiddleware<AppState, AfterLoginAction>(
+      _verifyAuthState(userRepository, businessRepository, branchRepository,
+          generalRepository, navigatorKey, context),
+    ),
   ];
 }
 
@@ -61,17 +63,19 @@ void Function(Store<AppState> store, dynamic action, NextDispatcher next)
   BranchRepository branchRepository,
   GeneralRepository generalRepository,
   GlobalKey<NavigatorState> navigatorKey,
+  BuildContext context,
 ) {
-  return (store, action, next) async {
+  // ignore: always_specify_types
+  return (Store<AppState> store, action, next) async {
     next(action);
 
     print('heart beat sync::');
 
     await isUserCurrentlyLoggedIn(store);
-    TabsTableData tab = await generalRepository.getTab(store);
+    final TabsTableData tab = await generalRepository.getTab(store);
     dispatchFocusedTab(tab, store);
 
-    await getBusinesses(store, generalRepository);
+    await getBusinesses(store, generalRepository, context);
     await generateAppColors(generalRepository, store);
     await createAppActions(store);
     await DataManager.createTempProduct(store, 'custom-product');
@@ -103,7 +107,8 @@ Future<bool> isUserCurrentlyLoggedIn(Store<AppState> store) async {
   return true;
 }
 
-heartBeatSync({Store<AppState> store}) {
+// ignore: always_declare_return_types
+heartBeatSync({Store<AppState> store}) async {
   BackgroundFetch.configure(
       BackgroundFetchConfig(
           minimumFetchInterval: 15,
@@ -113,14 +118,14 @@ heartBeatSync({Store<AppState> store}) {
           startOnBoot: true), (String taskId) async {
     switch (taskId) {
       case 'uploader':
-        bool internetAvailable = await DataManager.isInternetAvailable();
+        final bool internetAvailable = await DataManager.isInternetAvailable();
         if (internetAvailable) {
-          List<ProductImageTableData> images =
+          final List<ProductImageTableData> images =
               await store.state.database.productImageDao.getImageProducts();
-          if (images.length > 0) {
-            for (var i = 0; i < images.length; i++) {
-              String fileName = images[i].localPath.split('/').removeLast();
-              String storagePath =
+          if (images.isNotEmpty) {
+            for (int i = 0; i < images.length; i++) {
+              final String fileName = images[i].localPath.split('/').removeLast();
+              final String storagePath =
                   images[i].localPath.replaceAll('/' + fileName, '');
               await DataManager.startUploading(
                 store: store,
@@ -154,13 +159,16 @@ heartBeatSync({Store<AppState> store}) {
   );
 }
 
-_getCurrentLocation({Store<AppState> store}) async {
-  var geoLocator = Geolocator();
-  var locationOptions =
-      LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+Future<void> _getCurrentLocation({Store<AppState> store}) async {
+  final Geolocator geoLocator = Geolocator();
+  const LocationOptions locationOptions =
+      // ignore: unnecessary_const
+      const LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
 
-  if (store.state.currentActiveBusiness == null) return;
-  BusinessTableData businessTableData = await store.state.database.businessDao
+  if (store.state.currentActiveBusiness == null) {
+    return;
+  }
+  final BusinessTableData businessTableData = await store.state.database.businessDao
       .getBusinesById(id: store.state.currentActiveBusiness.id);
   geoLocator
       .getPositionStream(locationOptions)
@@ -178,13 +186,13 @@ _getCurrentLocation({Store<AppState> store}) async {
 
 Future<List<Branch>> getBranches(
     Store<AppState> store, GeneralRepository generalRepository) async {
-  List<Branch> branches = await CouchBase(shouldInitDb: false)
+  final List<Branch> branches = await CouchBase(shouldInitDb: false)
       .getDocumentByDocId(
           docId: 'branches_' + store.state.userId.toString(),
           store: store,
           T: Branch);
 
-  for (var i = 0; i < branches.length; i++) {
+  for (int i = 0; i < branches.length; i++) {
     if (branches[i].active) {
       //set current active branch
       store.dispatch(
@@ -202,7 +210,7 @@ Future<List<Branch>> getBranches(
         ),
       );
       //set branch hint
-      Hint hint = Hint((b) => b
+      final Hint hint = Hint((HintBuilder b) => b
         ..type = HintType.Branch
         ..name = branches[i].name);
       store.dispatch(OnHintLoaded(hint: hint));
@@ -213,11 +221,11 @@ Future<List<Branch>> getBranches(
 }
 
 List<Category> loadSystemCategories(List<CategoryTableData> categoryList) {
-  List<Category> categories = [];
-  categoryList.forEach((c) => {
+  final List<Category> categories = [];
+  categoryList.forEach((CategoryTableData c) => {
         categories.add(
           Category(
-            (u) => u
+            (CategoryBuilder u) => u
               ..name = c.name
               ..focused = c.focused
               ..branchId = u.branchId ?? 0
@@ -229,15 +237,16 @@ List<Category> loadSystemCategories(List<CategoryTableData> categoryList) {
 }
 
 void dispatchFocusedTab(TabsTableData tab, Store<AppState> store) {
-  final currentTab = tab == null ? 0 : tab.tab;
+  final int currentTab = tab == null ? 0 : tab.tab;
   store.dispatch(
     CurrentTab(tab: currentTab),
   );
 }
 
+// ignore: always_specify_types
 Future generateAppColors(
     GeneralRepository generalRepository, Store<AppState> store) async {
-  List<String> colors = [
+  final List<String> colors = [
     '#d63031',
     '#0984e3',
     '#e84393',
@@ -248,7 +257,7 @@ Future generateAppColors(
     '#a29bfe'
   ];
   //insert default colors for the app
-  for (var i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     //create default color items if does not exist
     await generalRepository.insertOrUpdateColor(
         store,
@@ -257,10 +266,11 @@ Future generateAppColors(
   }
 }
 
+// ignore: always_specify_types
 Future createSystemStockReasons(Store<AppState> store) async {
-  List<ReasonTableData> reasons =
+  final List<ReasonTableData> reasons =
       await store.state.database.reasonDao.getReasons();
-  if (reasons.length == 0) {
+  if (reasons.isEmpty) {
     await store.state.database.reasonDao.insert(
         //ignore:missing_required_param
         ReasonTableData(name: 'Stock Received', action: 'Received'));
@@ -292,11 +302,12 @@ Future createSystemStockReasons(Store<AppState> store) async {
   }
 }
 
+// ignore: always_specify_types
 Future createAppActions(Store<AppState> store) async {
-  ActionsTableData actionAction =
+  final ActionsTableData actionAction =
       await store.state.database.actionsDao.getActionBy('save');
 
-  ActionsTableData saveItem =
+  final ActionsTableData saveItem =
       await store.state.database.actionsDao.getActionBy('saveItem');
   if (saveItem == null) {
     await store.state.database.actionsDao.insert(
@@ -310,16 +321,22 @@ Future createAppActions(Store<AppState> store) async {
   }
 }
 
+// ignore: always_specify_types
 Future createTemporalOrder(
     GeneralRepository generalRepository, Store<AppState> store) async {
-  if (store.state.branch == null) return;
-  if (store.state.userId == null) return;
+  if (store.state.branch == null) {
+    return;
+  }
+  if (store.state.userId == null) {
+    return;
+  }
   DataManager.createTemporalOrder(generalRepository, store);
 }
 
-Future getBusinesses(
-    Store<AppState> store, GeneralRepository generalRepository) async {
-  List<Business> businesses = await CouchBase(shouldInitDb: false)
+// ignore: always_specify_types
+Future getBusinesses(Store<AppState> store, GeneralRepository generalRepository,
+    BuildContext context) async {
+  final List<Business> businesses = await CouchBase(shouldInitDb: false)
       .getDocumentByDocId(
           docId: 'business_' + store.state.userId.toString(),
           store: store,
@@ -328,12 +345,12 @@ Future getBusinesses(
   await getBranches(store, generalRepository);
   await createTemporalOrder(generalRepository, store);
 
-  for (var i = 0; i < businesses.length; i++) {
+  for (int i = 0; i < businesses.length; i++) {
     if (businesses[i].active) {
       store.dispatch(
         ActiveBusinessAction(
           Business(
-            (b) => b
+            (BusinessBuilder b) => b
               ..id = businesses[i].id
               ..currency = businesses[i].currency
               ..typeId = businesses[i].typeId
@@ -349,34 +366,35 @@ Future getBusinesses(
     }
   }
 
-  if (businesses.length == 0) {
+  if (businesses.isEmpty) {
     if (store.state.user != null) {
-      Router.navigator.pushNamed(
-        Router.signUpScreen,
-        arguments: SignUpScreenArguments(
-          name: store.state.user.name,
-          avatar: 'avatar',
-          email: store.state.user.email,
-          token: store.state.user.token,
-        ),
-      );
+      ExtendedNavigator.of(context).push(Routes.signUpScreen,
+          arguments: SignUpScreenArguments(
+            name: store.state.user.name,
+            avatar: 'avatar',
+            email: store.state.user.email,
+            token: store.state.user.token,
+          ));
+      //28,29
     } else {
-      Router.navigator.pushNamed(Router.afterSplash);
+      ExtendedNavigator.of(context).push(Routes.afterSplash);
     }
   } else if (store.state.userId == null) {
-    Router.navigator.pushNamed(Router.afterSplash);
+    ExtendedNavigator.of(context).push(Routes.afterSplash);
+
+    // Router.navigator.pushNamed(Router.afterSplash);
     Fluttertoast.showToast(
       msg: 'There was internal error try again',
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
-     
       backgroundColor: Colors.red,
       textColor: Colors.white,
       fontSize: 16.0,
     );
   } else {
     store.dispatch(OnBusinessLoaded(business: businesses));
-    Router.navigator.pushNamed(Router.dashboard);
+    
+    ExtendedNavigator.of(context).push(Routes.dashBoard);
   }
 }
 
@@ -388,7 +406,8 @@ void Function(
   UserRepository userRepository,
   GlobalKey<NavigatorState> navigatorKey,
 ) {
-  return (store, action, next) async {
+  // ignore: always_specify_types
+  return (Store<AppState> store, action, next) async {
     next(action);
     try {
       await userRepository.logOut(store);
@@ -408,7 +427,8 @@ void Function(
   UserRepository userRepository,
   GlobalKey<NavigatorState> navigatorKey,
 ) {
-  return (store, action, next) async {
+  // ignore: always_specify_types
+  return (Store<AppState> store, action, next) async {
     next(action);
   };
 }

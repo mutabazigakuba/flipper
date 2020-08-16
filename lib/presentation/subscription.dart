@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/credit_card.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/domain/redux/authentication/auth_actions.dart';
@@ -496,8 +497,8 @@ class _SubscriptionState extends State<Subscription> {
       final int statusCode = response.statusCode;
       if (statusCode < 200 || statusCode > 400 || json == null) {}
       if (widget.authType == 'register') {
-        Router.navigator.pushNamed(
-          Router.signUpScreen,
+        ExtendedNavigator.of(context).push(
+          Routes.signUpScreen,
           arguments: SignUpScreenArguments(
             name: widget.name,
             avatar: widget.avatar,

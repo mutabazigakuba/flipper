@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/home/widget/key_pad_buttons.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
@@ -51,7 +52,8 @@ class _KeyPadWidgetState extends State<KeyPadWidget> {
                   ),
                   leading: FlatButton(
                     onPressed: () {
-                      Router.navigator.pushNamed(Router.addNoteScreen);
+                      ExtendedNavigator.of(context).push(Routes.addNoteScreen);
+                      
                     },
                     child: Text(
                       vm.note == null

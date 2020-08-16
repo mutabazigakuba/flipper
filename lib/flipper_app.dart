@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,7 +13,6 @@ import 'package:flipper/domain/redux/user/user_middleware.dart';
 import 'package:flipper/generated/l10n.dart';
 import 'package:flipper/home/selling/selling_middleware.dart';
 import 'package:flipper/routes/router.gr.dart';
-import 'package:flipper/theme.dart';
 import 'package:flipper/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -41,14 +41,15 @@ class FlipperApp extends StatefulWidget {
 }
 
 class _FlipperAppState extends State<FlipperApp> {
-  static FirebaseAnalytics analytics =  FirebaseAnalytics();
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
   Store<AppState> store;
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-  static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> _navigatorKey =
+      GlobalKey<NavigatorState>();
   final UserRepository userRepo = UserRepository();
   final BusinessRepository businessRepo = BusinessRepository();
   final BranchRepository branchRepo = BranchRepository();
@@ -61,7 +62,6 @@ class _FlipperAppState extends State<FlipperApp> {
     await store.state.couch.syncRemoteToLocal(store: store);
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -69,7 +69,13 @@ class _FlipperAppState extends State<FlipperApp> {
       appReducer,
       initialState: AppState.init(),
       middleware: createAuthenticationMiddleware(
-          userRepo, businessRepo, branchRepo, generalRepo, _navigatorKey)
+        userRepo,
+        businessRepo,
+        branchRepo,
+        generalRepo,
+        _navigatorKey,
+        context,
+      )
         ..addAll(createBusinessMiddleware(_navigatorKey, businessRepo))
         ..addAll(permissionMiddleware(_navigatorKey))
         ..addAll(sellMiddleware(_navigatorKey))
@@ -88,9 +94,7 @@ class _FlipperAppState extends State<FlipperApp> {
       ShouldLoadBusiness(),
     );
 
-    _firebaseMessaging.configure(
-      onBackgroundMessage: backgroundMessageHandler
-    );
+    _firebaseMessaging.configure(onBackgroundMessage: backgroundMessageHandler);
     _firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered
@@ -122,6 +126,7 @@ class _FlipperAppState extends State<FlipperApp> {
         store.dispatch(OnPushNotificationOpenAction(message));
       },
     );
+    // ignore: always_specify_types
     return StoreProvider(
       store: store,
       child: MaterialApp(
@@ -131,10 +136,30 @@ class _FlipperAppState extends State<FlipperApp> {
         localizationsDelegates: [S.delegate],
         supportedLocales: S.delegate.supportedLocales,
         title: 'Flipper',
-        theme: AppTheme.theme,
-        navigatorKey: Router.navigator.key,
-        initialRoute: Router.afterSplash,
-        onGenerateRoute: Router.onGenerateRoute,
+        theme: ThemeData(
+          primaryColor: Colors.black,
+          brightness: Brightness.dark,
+          primarySwatch: Colors.purple,
+          accentColor: Colors.grey,
+          scaffoldBackgroundColor: Colors.black,
+        ),
+        // navigatorKey: Routing.navigator.key,
+        // initialRoute: Routing.afterSplash,
+        // onGenerateRoute: Routing.onGenerateRoute,
+        builder: ExtendedNavigator.builder(
+          // ignore: missing_required_param
+          router: Routing(),
+          builder: (BuildContext context, Widget extendedNav) => Theme(
+            data: ThemeData(
+              primaryColor: Colors.black,
+              brightness: Brightness.dark,
+              primarySwatch: Colors.purple,
+              accentColor: Colors.grey,
+              scaffoldBackgroundColor: Colors.black,
+            ),
+            child: extendedNav,
+          ),
+        ),
       ),
     );
   }

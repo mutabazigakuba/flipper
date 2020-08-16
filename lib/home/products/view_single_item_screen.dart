@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
@@ -48,11 +49,11 @@ class _ViewSingleItemScreenState extends State<ViewSingleItemScreen> {
   _closeAndDelete(BuildContext context) async {
     final store = StoreProvider.of<AppState>(context);
     await DataManager.deleteProduct(store: store, productId: widget.productId);
-    Router.navigator.pop();
+    ExtendedNavigator.of(context).pop();
   }
 
   Future<bool> _onWillPop() async {
-    Router.navigator.pop(true);
+    ExtendedNavigator.of(context).pop();
     return true;
   }
 

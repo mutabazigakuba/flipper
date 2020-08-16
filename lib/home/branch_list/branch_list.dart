@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/routes/router.gr.dart';
@@ -130,7 +131,7 @@ class _BranchListState extends State<BranchList> {
               ListTile(
                 leading: FlatButton(
                   onPressed: () {
-                    Router.navigator.pushNamed(Router.reportScreen);
+                    ExtendedNavigator.of(context).push(Routes.reportScreen);
                   },
                   child: Text(
                     'Report',
@@ -147,7 +148,7 @@ class _BranchListState extends State<BranchList> {
               ListTile(
                 leading: FlatButton(
                   onPressed: () {
-                    Router.navigator.pushNamed(Router.allItemScreen);
+                    ExtendedNavigator.of(context).push(Routes.allItemScreen);
                   },
                   child: Text(
                     'Items  ',

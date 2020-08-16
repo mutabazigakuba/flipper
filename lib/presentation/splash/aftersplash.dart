@@ -16,6 +16,7 @@ class AfterSplash extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           LandscapeLogo(),
+          // ignore: prefer_const_constructors
           LandscapeButton(),
         ],
       );
@@ -23,6 +24,7 @@ class AfterSplash extends StatelessWidget {
       child = Wrap(
         children: <Widget>[
           PortraitLogo(),
+          // ignore: prefer_const_constructors
           ButtonPortrait(),
         ],
       );

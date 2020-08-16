@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/generated/l10n.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
@@ -26,8 +27,8 @@ class _VariationWidgetState extends State<VariationWidget> {
     return ListView(children: <Widget>[
       GestureDetector(
         onTap: () {
-          Router.navigator.pushNamed(
-            Router.editVariationScreen,
+          ExtendedNavigator.of(context).push(
+            Routes.editVariationScreen,
             //TODO(richard): work on this.
             // arguments: EditVariationScreenArguments(
             //   variationId: widget.variation.id,
@@ -68,7 +69,7 @@ class _VariationWidgetState extends State<VariationWidget> {
                   : '${snapshot.data[i].currentStock}' + S.of(context).inStock,
             ),
             onPressed: () {
-              Router.navigator.pushNamed(Router.receiveStock);
+              ExtendedNavigator.of(context).push(Routes.receiveStockScreen);
             },
           )
         ]),

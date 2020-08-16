@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
@@ -25,7 +26,8 @@ class _ViewProductsScreenState extends State<ViewProductsScreen> {
         return Scaffold(
           appBar: CommonAppBar(
             onPop: () {
-              Router.navigator.pop();
+              
+              ExtendedNavigator.of(context).pop();
             },
             title: S.of(context).allItems,
             showActionButton: false,

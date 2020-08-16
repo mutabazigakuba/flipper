@@ -52,8 +52,6 @@ class Routes {
   static const String settingUpApplicationScreen =
       '/setting-up-application-screen';
   static const String signUpScreen = '/sign-up-screen';
-  static const String signUpScreen = '/sign-up-screen';
-  static const String createBusinessScreen = '/create-business-screen';
   static const String createBusinessScreen = '/create-business-screen';
   static const String addProductScreen = '/add-product-screen';
   static const String editItemTitle = '/edit-item-title';
@@ -70,7 +68,6 @@ class Routes {
   static const String viewSingleItemScreen = '/view-single-item-screen';
   static const String editVariationScreen = '/edit-variation-screen';
   static const String editCategoryScreen = '/edit-category-screen';
-  static const String editUnitTypeScreen = '/edit-unit-type-screen';
   static const String editUnitTypeScreen = '/edit-unit-type-screen';
   static const String transactionScreen = '/transaction-screen';
   static const String authWebView = '/auth-web-view';
@@ -117,7 +114,7 @@ class Routes {
   };
 }
 
-class Router extends RouterBase {
+class Routing extends RouterBase {
   @override
   List<RouteDef> get routes => _routes;
   final _routes = <RouteDef>[
@@ -129,8 +126,6 @@ class Router extends RouterBase {
     RouteDef(Routes.settingUpApplicationScreen,
         page: SettingUpApplicationScreen),
     RouteDef(Routes.signUpScreen, page: SignUpScreen),
-    RouteDef(Routes.signUpScreen, page: SignUpScreen),
-    RouteDef(Routes.createBusinessScreen, page: CreateBusinessScreen),
     RouteDef(Routes.createBusinessScreen, page: CreateBusinessScreen),
     RouteDef(Routes.addProductScreen, page: AddProductScreen),
     RouteDef(Routes.editItemTitle, page: EditItemTitle),
@@ -146,7 +141,6 @@ class Router extends RouterBase {
     RouteDef(Routes.viewSingleItemScreen, page: ViewSingleItemScreen),
     RouteDef(Routes.editVariationScreen, page: EditVariationScreen),
     RouteDef(Routes.editCategoryScreen, page: EditCategoryScreen),
-    RouteDef(Routes.editUnitTypeScreen, page: EditUnitTypeScreen),
     RouteDef(Routes.editUnitTypeScreen, page: EditUnitTypeScreen),
     RouteDef(Routes.transactionScreen, page: TransactionScreen),
     RouteDef(Routes.authWebView, page: AuthWebView),

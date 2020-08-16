@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:customappbar/customappbar.dart';
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
@@ -29,7 +30,8 @@ class _CartDetailsScreenState extends State<CartDetailsScreen> {
         return Scaffold(
           appBar: CommonAppBar(
             onPop: () {
-              Router.navigator.pop();
+              ExtendedNavigator.of(context).pop();
+
             },
             title: 'Total RWF ' + _total.toString(),
             disableButton: false,
