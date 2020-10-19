@@ -10,27 +10,27 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flipper/presentation/splash/splash_screen.dart';
 import 'package:flipper/presentation/home/dash_board.dart';
 import 'package:flipper/presentation/splash/aftersplash.dart';
-import 'package:flipper/home/add_note_screen.dart';
+import 'package:flipper/home/widget/note/add_note_screen.dart';
 import 'package:flipper/home/setting_up_application_screen.dart';
 import 'package:flipper/presentation/business/sign_up_screen.dart';
 import 'package:flipper/presentation/business/create_business_screen.dart';
-import 'package:flipper/home/add_product_screen.dart';
-import 'package:flipper/home/edit_item_title.dart';
-import 'package:flipper/home/add_variation_screen.dart';
-import 'package:flipper/home/add_unit_type.dart';
-import 'package:flipper/home/add_category_screen.dart';
+import 'package:flipper/home/product/add/add_product_screen.dart';
+import 'package:flipper/home/product/edit/edit_product_title.dart';
+import 'package:flipper/home/widget/variation/add_variation_screen.dart';
+import 'package:flipper/home/widget/unit/add_unit_type.dart';
+import 'package:flipper/home/product/add/add_category_screen.dart';
 import 'package:flipper/home/category/create_category_input_screen.dart';
-import 'package:flipper/home/receive_stock.dart';
+import 'package:flipper/home/widget/stock/receive_stock.dart';
 import 'package:flipper/home/selling/change_quantity_selling.dart';
 import 'package:flipper/home/cart/cart_details_screen.dart';
 import 'package:flipper/model/cart.dart';
-import 'package:flipper/home/products/all_item_screen.dart';
-import 'package:flipper/home/products/view_products_screen.dart';
+import 'package:flipper/home/product/products_view.dart';
+import 'package:flipper/home/product/view_products_screen.dart';
 import 'package:flipper/presentation/login/login_screen.dart';
-import 'package:flipper/home/products/view_single_item_screen.dart';
-import 'package:flipper/home/products/edit_variation_screen.dart';
+import 'package:flipper/home/product/single_product_view.dart';
+import 'package:flipper/home/variation/edit_variation_screen.dart';
 import 'package:flipper/home/widget/category/edit_category_screen.dart';
-import 'package:flipper/home/unit/edit_unit_screen.dart';
+import 'package:flipper/home/widget/unit/edit_unit_screen.dart';
 import 'package:flipper/home/transactions/transaction_screen.dart';
 import 'package:flipper/home/reports/report_screen.dart';
 import 'package:flipper/home/reports/date_screen.dart';
@@ -50,7 +50,7 @@ class Routing {
   static const settingUpApplicationScreen = '/setting-up-application-screen';
   static const signUpScreen = '/sign-up-screen';
   static const createBusiness = '/create-business';
-  static const addItemScreen = '/add-item-screen';
+  static const addProduct = '/add-product';
   static const editItemTitle = '/edit-item-title';
   static const addVariationScreen = '/add-variation-screen';
   static const addUnitType = '/add-unit-type';
@@ -123,18 +123,18 @@ class Routing {
           fullscreenDialog: true,
         );
       case Routing.signUpScreen:
-        if (hasInvalidArgs<SignUpScreenArguments>(args)) {
+        if (hasInvalidArgs<SignUpScreenArguments>(args, isRequired: true)) {
           return misTypedArgsRoute<SignUpScreenArguments>(args);
         }
-        final typedArgs =
-            args as SignUpScreenArguments ?? SignUpScreenArguments();
+        final typedArgs = args as SignUpScreenArguments;
         return PageRouteBuilder<dynamic>(
           pageBuilder: (ctx, animation, secondaryAnimation) => SignUpScreen(
               key: typedArgs.key,
               token: typedArgs.token,
               email: typedArgs.email,
               name: typedArgs.name,
-              avatar: typedArgs.avatar),
+              avatar: typedArgs.avatar,
+              userId: typedArgs.userId),
           settings: settings,
           transitionsBuilder: TransitionsBuilders.slideLeft,
           transitionDuration: Duration(milliseconds: 200),
@@ -149,7 +149,7 @@ class Routing {
           settings: settings,
           fullscreenDialog: true,
         );
-      case Routing.addItemScreen:
+      case Routing.addProduct:
         if (hasInvalidArgs<Key>(args)) {
           return misTypedArgsRoute<Key>(args);
         }
@@ -435,8 +435,14 @@ class SignUpScreenArguments {
   final String email;
   final String name;
   final String avatar;
+  final String userId;
   SignUpScreenArguments(
-      {this.key, this.token, this.email, this.name, this.avatar});
+      {this.key,
+      this.token,
+      this.email,
+      this.name,
+      this.avatar,
+      @required this.userId});
 }
 
 //EditItemTitle arguments holder class

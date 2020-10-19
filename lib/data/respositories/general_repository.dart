@@ -4,16 +4,15 @@ import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/domain/redux/authentication/auth_actions.dart';
 import 'package:flipper/helper/constant.dart';
-import 'package:flipper/locator.dart';
-import 'package:flipper/locator.dart';
+import 'package:flipper/services/proxy.dart';
 import 'package:couchbase_lite/couchbase_lite.dart';
 import 'package:flipper/model/order.dart';
 import 'package:flipper/model/product.dart';
 import 'package:flipper/model/unit.dart';
 import 'package:flipper/model/variation.dart';
 import 'package:flipper/services/database_service.dart';
-import 'package:flipper/util/data_manager.dart';
-import 'package:flipper/util/logger.dart';
+import 'package:flipper/utils/data_manager.dart';
+import 'package:flipper/utils/logger.dart';
 import 'package:logger/logger.dart';
 import 'package:redux/redux.dart';
 import 'package:uuid/uuid.dart';
@@ -70,7 +69,7 @@ class GeneralRepository {
          final Logger log = Logging.getLogger('General repo ....');
     // OrderTableData order =
     //     await store.state.database.orderDao.getExistingDraftOrder();
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     final List<Map<String, dynamic>> or = await _databaseService.filter(
       equator: 'draft',
       property: 'name',
@@ -116,7 +115,7 @@ class GeneralRepository {
   Future<bool> updateCategory(Store<AppState> store, String categoryId,
       String categoryName, String branchId,
       {bool focused}) async {
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     final Document cat = await _databaseService.getById(id: categoryId);
     if (cat != null) {
       cat
@@ -138,9 +137,9 @@ class GeneralRepository {
 
   Future<bool> updateUnit(Store<AppState> store, Unit unit) {
     //ignore:missing_required_param
-    final UnitTableData b = UnitTableData(
-        id: unit.id, name: unit.name, focused: unit.focused, value: null);
-    return store.state.database.unitDao.updateUnit(b);
+    // final UnitTableData b = UnitTableData(
+    //     id: unit.id, name: unit.name, focused: unit.focused, value: null);
+    // return store.state.database.unitDao.updateUnit(b);
   }
 
   Future<TabsTableData> getTab(Store<AppState> store) {
@@ -187,13 +186,13 @@ class GeneralRepository {
   }
 
   Future<void> insertVariant(Store<AppState> store, Variation data) async {
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     _databaseService.insert(id: Uuid().v1(), data: data.toMap());
   }
 }
 
 Future<void> insertHistory(Store<AppState> store, int variantId, int count) {
-  final DatabaseService _databaseService = locator<DatabaseService>();
+  final DatabaseService _databaseService = ProxyService.database;
   // TODO(richard): inset a history here.
   // return store.state.database.stockHistoryDao
   //     // ignore: missing_required_param
@@ -268,7 +267,7 @@ Future<void> insertNewDraftOrder(Store<AppState> store) async {
         supplierInvoiceNumber: 0,
         taxAmount: 0,
         taxRate: 0,
-        userId: store.state.userId,
+        // userId: store.state.user.id,
       ),
     );
   }

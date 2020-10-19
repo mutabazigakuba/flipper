@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:couchbase_lite/couchbase_lite.dart' as lite;
 import 'package:flipper/data/main_database.dart';
-import 'package:flipper/data/observable_response.dart';
-import 'package:flipper/locator.dart';
+import 'package:flipper/services/proxy.dart';
 import 'package:flipper/services/database_service.dart';
-import 'package:flipper/util/logger.dart';
+import 'package:flipper/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
@@ -48,7 +47,7 @@ class AppDatabase {
     assert(map['_id'] != null);
     // ignore: always_specify_types
     // final List<Map> m = [map];
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     _databaseService.insert(id:map['id'],data:map);
     // FIXME(richard): update the document online to remove branch in array just save them and rely on table name
     return map['id'];
@@ -124,15 +123,15 @@ class AppDatabase {
           if (document != null && !document.getBoolean('touched')) {
              log.d('change in id: $id');
             //only update once to avoid infinite loop
-            log.i('updated non touched document,we update the document to make the id be usable for update');
-            final lite.MutableDocument mutableDoc = document
-                .toMutable()
-                .setBoolean('touched', true)
-                .setString(
-                  'id',
-                  id,
-                ); //to make sure that the id that is in doc is the one we can use to make update about a single doc, this is a work around as we can not have id in a simple way
-            database.saveDocument(mutableDoc);
+            // log.i('updated non touched document,we update the document to make the id be usable for update');
+            // final lite.MutableDocument mutableDoc = document
+            //     .toMutable()
+            //     .setBoolean('touched', true)
+            //     .setString(
+            //       'id',
+            //       id,
+            //     ); //to make sure that the id that is in doc is the one we can use to make update about a single doc, this is a work around as we can not have id in a simple way
+            // database.saveDocument(mutableDoc);
           }
         }
       });
@@ -182,7 +181,7 @@ class AppDatabase {
     assert(map['businessId'] != null);
 
     // ignore: always_specify_types
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     // ignore: flutter_style_todos
     // TODO: discuss with @ganze to abandon saving array within a document
     _databaseService.insert(id:map['id'],data:map);
@@ -206,7 +205,7 @@ class AppDatabase {
     assert(map['updatedAt'] != null);
     assert(map['userId'] != null);
 
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     _databaseService.insert(id:map['id'],data:map);
     return map['id'];
   }
@@ -226,7 +225,7 @@ class AppDatabase {
     assert(map['updatedAt'] != null);
 
     // ignore: always_specify_types
-    final DatabaseService _databaseService = locator<DatabaseService>();
+    final DatabaseService _databaseService = ProxyService.database;
     _databaseService.insert(id:map['id'],data:map);
   }
   @deprecated
@@ -491,7 +490,7 @@ class AppDatabase {
         await store.state.database.branchProductDao.branchProducts();
 
     final lite.Document bP = await database
-        .document('branchProducts_' + store.state.userId.toString());
+        .document('branchProducts_' + store.state.user.id.toString());
     // return await createDocumentIfNotExists(map['_id'], map);
 
     // ignore: always_specify_types
@@ -500,7 +499,7 @@ class AppDatabase {
       final Map map = {
         'branchId': branchProducts[i].branchId,
         'id': branchProducts[i].id,
-        'branchProducts_': store.state.userId.toString(),
+        'branchProducts_': store.state.user.id.toString(),
         'productId': branchProducts[i].productId,
       };
       mapTypeListBranchProducts.add(map);
@@ -509,9 +508,9 @@ class AppDatabase {
     bP
         .toMutable()
         .setList('branchProducts', mapTypeListBranchProducts)
-        // .setList('channels', [store.state.userId.toString()])
+        // .setList('channels', [store.state.user.id.toString()])
         .setString('uid', Uuid().v1())
-        .setString('_id', 'branchProducts_' + store.state.userId.toString());
+        .setString('_id', 'branchProducts_' + store.state.user.id.toString());
 
     await database.saveDocument(bP);
   }
@@ -521,7 +520,7 @@ class AppDatabase {
         await store.state.database.stockDao.getStocks();
 
     lite.Document stock =
-        await database.document(store.state.userId.toString());
+        await database.document(store.state.user.id.toString());
 
     final List mapTypeListStocks = [];
     for (int i = 0; i < stocks.length; i++) {
@@ -546,9 +545,9 @@ class AppDatabase {
     stock
         .toMutable()
         .setList('stocks', mapTypeListStocks)
-        // .setList('channels', [store.state.userId.toString()])
+        // .setList('channels', [store.state.user.id.toString()])
         .setString('uid', Uuid().v1())
-        .setString('_id', 'stocks_' + store.state.userId.toString());
+        .setString('_id', 'stocks_' + store.state.user.id.toString());
 
     await database.saveDocument(stock);
     return stock;
@@ -561,7 +560,7 @@ class AppDatabase {
     // Document product =
 
     final lite.Document product =
-        await database.document(store.state.userId.toString());
+        await database.document(store.state.user.id.toString());
 
     final List mapTypeListProducts = [];
     for (int i = 0; i < products.length; i++) {
@@ -590,9 +589,9 @@ class AppDatabase {
     product
         .toMutable()
         .setList('products', mapTypeListProducts)
-        // .setList('channels', [store.state.userId.toString()])
+        // .setList('channels', [store.state.user.id.toString()])
         .setString('uid', Uuid().v1())
-        .setString('_id', 'products_' + store.state.userId.toString());
+        .setString('_id', 'products_' + store.state.user.id.toString());
 
     await database.saveDocument(product);
   }
@@ -603,7 +602,7 @@ class AppDatabase {
         await store.state.database.variationDao.getVariations();
 
     final lite.Document variant =
-        await database.document(store.state.userId.toString());
+        await database.document(store.state.user.id.toString());
 
     final List mapTypeListVariants = [];
     for (int i = 0; i < variations.length; i++) {
@@ -624,9 +623,9 @@ class AppDatabase {
     variant
         .toMutable()
         .setList('variants', mapTypeListVariants)
-        // .setList('channels', [store.state.userId.toString()])
+        // .setList('channels', [store.state.user.id.toString()])
         .setString('uid', Uuid().v1())
-        .setString('_id', 'variants_' + store.state.userId.toString());
+        .setString('_id', 'variants_' + store.state.user.id.toString());
 
     await database.saveDocument(variant);
     return variations;
@@ -660,7 +659,7 @@ class AppDatabase {
   partialSyncHistory(
       {StockHistoryTableData history, Store<AppState> store}) async {
     final lite.Document histo = await database
-        .document('stockHistory_' + store.state.userId.toString());
+        .document('stockHistory_' + store.state.user.id.toString());
 
     final List mapHistory = [];
     Map map = {
@@ -668,7 +667,7 @@ class AppDatabase {
       'stockId': history.id,
       'reason': history.reason,
       'variantId': history.variantId,
-      'stockHistory_': store.state.userId.toString(),
+      'stockHistory_': store.state.user.id.toString(),
       'note': history.note,
       'quantity': history.quantity,
     };
@@ -676,9 +675,9 @@ class AppDatabase {
     histo
         .toMutable()
         .setList('stockHistory', mapHistory)
-        // .setList('channels', [store.state.userId.toString()])
+        // .setList('channels', [store.state.user.id.toString()])
         .setString('uid', Uuid().v1())
-        .setString('_id', 'stockHistory_' + store.state.userId.toString());
+        .setString('_id', 'stockHistory_' + store.state.user.id.toString());
     await database.saveDocument(histo);
   }
 }

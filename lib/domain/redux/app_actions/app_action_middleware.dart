@@ -1,13 +1,13 @@
-import 'package:flipper/couchbase.dart';
+
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/data/respositories/general_repository.dart';
 import 'package:flipper/domain/redux/app_actions/actions.dart';
 import 'package:flipper/domain/redux/app_state.dart';
-import 'package:flipper/locator.dart';
+import 'package:flipper/services/proxy.dart';
 import 'package:flipper/model/unit.dart';
 import 'package:couchbase_lite/couchbase_lite.dart';
 import 'package:flipper/services/database_service.dart';
-import 'package:flipper/util/data_manager.dart';
+import 'package:flipper/utils/data_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
 import 'package:uuid/uuid.dart';
@@ -57,7 +57,7 @@ void Function(Store<AppState> store, CreateEmptyTempCategoryAction action,
   // ignore: always_specify_types
   return (Store<AppState> store, CreateEmptyTempCategoryAction action, next) async {
     if (store.state.branch != null) {
-      final DatabaseService _databaseService = locator<DatabaseService>();
+      final DatabaseService _databaseService = ProxyService.database;
       final Document doc =await   _databaseService.insert(data: {'branchId': store.state.branch.id,'name':action.name});
       
       store.dispatch(TempCategoryIdAction(categoryId: doc.id));
@@ -69,7 +69,7 @@ void Function(Store<AppState> store, PersistFocusedUnitAction action,
         NextDispatcher next)
     _persistUnit(GlobalKey<NavigatorState> navigatorKey,
         GeneralRepository generalRepository) {
-  return (store, action, next) {
+  return (Store<AppState> store, PersistFocusedUnitAction action, next) {
     if (store.state.focusedUnit != null) {
       store.state.units.forEach((u) => {
             if (u.id == store.state.focusedUnit)
@@ -78,8 +78,6 @@ void Function(Store<AppState> store, PersistFocusedUnitAction action,
                     store,
                     Unit((j) => j
                       ..id = u.id
-                      ..businessId = u.businessId
-                      ..branchId = u.branchId
                       ..focused = true
                       ..name = u.name))
               }
@@ -89,8 +87,6 @@ void Function(Store<AppState> store, PersistFocusedUnitAction action,
                     store,
                     Unit((j) => j
                       ..id = u.id
-                      ..businessId = u.businessId
-                      ..branchId = u.branchId
                       ..focused = false
                       ..name = u.name))
               }
@@ -185,15 +181,15 @@ void Function(Store<AppState> store, SavePayment action, NextDispatcher next)
       ),
     );
 
-    //TODO:update the quantity of stock.
+    // TODO(richard): update the quantity of stock.
     //get this order details using this orderId
     //get variantId then update the stock current quantity minus the orderDetail quantity
 
     //update orderdetails
     DataManager.createTemporalOrder(generalRepository, store);
 
-    DataManager.createTempProduct(store, 'custom-product');
+
+    DataManager.createTempProduct(store: store,userId: store.state.user.id,productName: 'tmp');
     
-    AppDatabase.instance.syncOrderLRemote(store);
   };
 }

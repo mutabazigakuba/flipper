@@ -1,17 +1,18 @@
 import 'package:flipper/helper/constant.dart';
 
 import 'package:flipper/home/widget/custom_widgets.dart';
-import 'package:flipper/locator.dart';
+import 'package:flipper/services/proxy.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/routes/router.gr.dart';
 import 'package:flipper/services/flipperNavigation_service.dart';
 
-import 'package:flipper/util/app_colors.dart';
+import 'package:flipper/utils/app_colors.dart';
 import 'package:flipper/viewmodels/drawer_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
-import 'business_list/business_list.dart';
+import 'business/business_list.dart';
+
 
 class FlipperDrawer extends StatefulWidget {
   const FlipperDrawer({Key key, this.vm}) : super(key: key);
@@ -22,7 +23,7 @@ class FlipperDrawer extends StatefulWidget {
 
 class _FlipperDrawerState extends State<FlipperDrawer> {
   final FlipperNavigationService _navigationService =
-      locator<FlipperNavigationService>();
+      ProxyService.nav;
 
   ListTile _menuListRowButton(String title,
       {Function onPressed, int icon, bool isEnable = false}) {

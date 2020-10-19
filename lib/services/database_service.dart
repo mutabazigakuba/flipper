@@ -4,7 +4,7 @@ import 'package:couchbase_lite/couchbase_lite.dart';
 import 'package:flipper/couchbase.dart';
 import 'package:flipper/data/observable_response.dart';
 import 'package:flipper/home/open_close_drawerview.dart';
-import 'package:flipper/util/logger.dart';
+import 'package:flipper/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -44,6 +44,7 @@ class DatabaseService {
       return 'Error saving document';
     }
   }
+
   @deprecated
   Future<void> openCloseBusiness({
     String userId,
@@ -100,7 +101,7 @@ class DatabaseService {
       String equator,
       String andProperty,
       String andEquator,
-      bool and=false}) async {
+      bool and = false}) async {
     // ignore: always_specify_types
     Where query;
     if (!and) {
@@ -130,37 +131,62 @@ class DatabaseService {
     final List<Map<String, dynamic>> model = result.map((Result result) {
       return result.toMap();
     }).toList();
-    
-    return model; 
+
+    return model;
   }
 
   Future<bool> update({Document document}) async {
     return await AppDatabase.instance.database.saveDocument(document);
   }
 
-  Future<Document> insert({String id, Map  data}) async {
-   
+  Future<Document> insert({String id, Map data}) async {
+    log.d(data);
     final MutableDocument newDoc =
-        MutableDocument(id: id??Uuid().v1(), data: data);
+        MutableDocument(id: id ?? Uuid().v1(), data: data);
     await AppDatabase.instance.database.saveDocument(newDoc);
     return newDoc;
   }
 
-  ObservableResponse<ResultSet> observer({String property, String equator}) {
+  ObservableResponse<ResultSet> observer({
+    String property,
+    String equator,
+    String andProperty,
+    String andEquator,
+    bool and = false,
+  }) {
     final BehaviorSubject<ResultSet> stream = BehaviorSubject<ResultSet>();
     // Execute a query and then post results and all changes to the stream
-
-    final Where query = QueryBuilder.select([SelectResult.all()])
-        .from(AppDatabase.instance.dbName)
-        .where(
-            Expression.property(property).equalTo(Expression.string(equator)));
-
+    Where query;
+    if (!and) {
+      query = QueryBuilder.select([SelectResult.all()])
+          .from(AppDatabase.instance.dbName)
+          .where(
+            Expression.property(property).equalTo(
+              Expression.string(equator),
+            ),
+          );
+    } else {
+      query = QueryBuilder.select([SelectResult.all()])
+          .from(AppDatabase.instance.dbName)
+          .where(
+            Expression.property(property)
+                .equalTo(
+                  Expression.string(equator),
+                )
+                .add(
+                  Expression.property(andProperty).equalTo(
+                    Expression.string(andEquator),
+                  ),
+                ),
+          );
+    }
     final Null Function(ResultSet results) processResults =
         (ResultSet results) {
       if (!stream.isClosed) {
         stream.add(results);
       }
     };
+
     return _buildObservableQueryResponse(stream, query, processResults);
   }
 

@@ -11,9 +11,11 @@ import 'package:flipper/model/branch.dart';
 import 'package:flipper/model/business.dart';
 import 'package:flipper/model/category.dart';
 import 'package:flipper/model/converters/switcher.dart';
+import 'package:flipper/model/fuser.dart';
 import 'package:flipper/model/order.dart';
 import 'package:flipper/model/product.dart';
 import 'package:flipper/model/tax.dart';
+import 'package:flipper/model/unit.dart';
 import 'package:flipper/model/variation.dart';
 
 
@@ -30,7 +32,7 @@ part 'serializers.g.dart';
 /// types needed transitively via fields.
 ///
 /// You usually only need to do this once per project.
-@SerializersFor([Switcher,Category,Tax,Product,Business,Branch,Order,Variation])
+@SerializersFor([Switcher,Unit, Category,Tax,Product,Business,Branch,Order,Variation,FUser])
 Serializers serializers = _$serializers;
 
 Serializers standardSerializers = (serializers.toBuilder()
