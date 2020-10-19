@@ -219,7 +219,7 @@ packages:
       name: contacts_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.10"
+    version: "0.4.6"
   convert:
     dependency: transitive
     description:
@@ -524,6 +524,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_text_drawable:
+    dependency: "direct main"
+    description:
+      name: flutter_text_drawable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1"
   flutter_uploader:
     dependency: "direct main"
     description:
@@ -584,7 +591,7 @@ packages:
       name: google_fonts
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   graphs:
     dependency: transitive
     description:

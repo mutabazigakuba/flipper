@@ -48,7 +48,11 @@ class _SelectContact extends State<SelectContact> {
   }
 
   Future<Iterable<Contact>> _getContacts() async {
-    return await ContactsService.getContacts();
+    // FIXME(richard): fix the long wait on loading time,should load and save them locally on app start.
+    return await ContactsService.getContacts(
+      withThumbnails: false,
+      photoHighResolution: false,
+    );
   }
 
   @override
@@ -102,6 +106,7 @@ class _SelectContact extends State<SelectContact> {
                         child: Text('Contacts'),
                         value: NewChatOptions.contacts,
                       ),
+                      // ignore: always_specify_types
                       const PopupMenuItem(
                         child: Text('Refresh'),
                         value: NewChatOptions.refresh,
@@ -154,17 +159,18 @@ class _SelectContact extends State<SelectContact> {
                           color: Colors.white,
                         ),
                       ),
-                      title: const Text('New group',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      title: Text(
+                        'New payroll',
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
                       onTap: () {},
                     ));
                     data.add(ListTile(
                       leading: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.fabBgColor,
+                          color: Theme.of(context)
+                              .copyWith(canvasColor: AppColors.fabBgColor)
+                              .canvasColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.all(8.0),
@@ -174,11 +180,10 @@ class _SelectContact extends State<SelectContact> {
                           color: Colors.white,
                         ),
                       ),
-                      title: const Text('New contact',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      title: Text(
+                        'New contact',
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
                       onTap: () {
                         // AndroidIntentHelpers.createContact(context);
                       },
@@ -189,11 +194,8 @@ class _SelectContact extends State<SelectContact> {
                         padding: const EdgeInsets.all(8.0),
                         child: const Icon(Icons.share),
                       ),
-                      title: const Text('Invite friends',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      title: Text('Invite friends',
+                          style: Theme.of(context).textTheme.headline5),
                       onTap: () {
                         // AndroidIntentHelpers.inviteFriend(context);
                       },
@@ -203,11 +205,8 @@ class _SelectContact extends State<SelectContact> {
                         padding: const EdgeInsets.all(8.0),
                         child: const Icon(Icons.help),
                       ),
-                      title: const Text('Contacts help',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      title: Text('Contacts help',
+                          style: Theme.of(context).textTheme.headline5),
                       onTap: () {},
                     ));
                     return ListView.builder(
@@ -216,11 +215,15 @@ class _SelectContact extends State<SelectContact> {
                           if (i < 2 || i > data.length - 3) {
                             return data[i];
                           }
-                          return ContactItem(
-                              contact: data.elementAt(i),
-                              onProfileTap: () => onTapProfileContactItem(
-                                  context, snapshot.data.elementAt(i)),
-                              onTap: () {});
+                          if (data.elementAt(i).displayName != null) {
+                            return ContactItem(
+                                contact: data.elementAt(i),
+                                onProfileTap: () => onTapProfileContactItem(
+                                    context, snapshot.data.elementAt(i)),
+                                onTap: () {});
+                          } else {
+                            return const SizedBox.shrink();
+                          }
                         });
                 }
                 return null; // unreachable
