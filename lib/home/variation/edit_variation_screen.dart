@@ -4,9 +4,9 @@ import 'package:flipper/domain/redux/app_state.dart';
 import 'package:flipper/generated/l10n.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/routes/router.gr.dart';
-import 'package:flipper/util/HexColor.dart';
-import 'package:flipper/util/data_manager.dart';
-import 'package:flipper/util/validators.dart';
+import 'package:flipper/utils/HexColor.dart';
+import 'package:flipper/utils/data_manager.dart';
+import 'package:flipper/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
