@@ -10,12 +10,14 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:redux/redux.dart';
 import 'package:flipper/services/proxy.dart';
+
 class PayableWidget extends StatefulWidget {
   @override
   _PayableWidgetState createState() => _PayableWidgetState();
 }
 
 class _PayableWidgetState extends State<PayableWidget> {
+  
   int _total = 0;
   final FlipperNavigationService _navigationService = ProxyService.nav;
 

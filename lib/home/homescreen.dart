@@ -10,6 +10,7 @@ import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/presentation/widgets/payable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter/services.dart';
 
 class HomeScreen extends StatefulWidget {
   final ValueNotifier<bool> sideOpenController;
@@ -75,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
         return const Poswidget();
         break;
       case 1:
-      
         return const ProductScreen();
         break;
     }
@@ -83,7 +83,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+
+    // ignore: always_specify_types
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown
+    // ]);
+
     _nextPage(widget.vm.tab);
+
     return Scaffold(
       extendBody: true,
       key: _scaffoldKey,
