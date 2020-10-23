@@ -13,7 +13,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 
 import 'package:logger/logger.dart';
 
-
+// comment
 class StockViewModel extends BaseModel {
   final Logger log = Logging.getLogger('stock observer:)');
   final DatabaseService _databaseService = ProxyService.database;
@@ -27,7 +27,7 @@ class StockViewModel extends BaseModel {
     log.d('loading stock with productId:'+productId);
     //demo of listening on users table on every entry.
     _databaseService
-        .observer(equator: AppTables.product + StoreProvider.of<AppState>(context).state.branch.id, property: 'tableName')
+        .observer(equator: AppTables.product, property: 'table')
         .stream
         .listen((ResultSet event) {
       // stocks = event.allResults();

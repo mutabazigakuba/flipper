@@ -31,6 +31,7 @@ class DataManager {
   static String description;
   static String sku;
   static String name;
+  
 
   static Future<void> startUploading(
       {String storagePath,
@@ -65,10 +66,10 @@ class DataManager {
       // final ProductTableData product = await store.state.database.productDao
       //     .getItemById(productId: uploadResponse.productId);
       final DatabaseService _databaseService = ProxyService.database;
-      final Map<String, dynamic> productDoc =
+      final Document productDoc =
           await _databaseService.getById(id: uploadResponse.productId);
 
-      final Product product = Product.fromMap(productDoc);
+      final Product product = Product.fromMap(productDoc.toMap());
 
       // TODO(richard): update url here
       // await store.state.database.productDao.updateProduct(
@@ -99,28 +100,29 @@ class DataManager {
     return false;
   }
 
+  @deprecated
   static Future<void> updateVariation({
-    VariationTableData variation,
+    Variation variation,
     Store<AppState> store,
     double retailPrice,
     double supplyPrice,
     String variantName,
   }) async {
+    final DatabaseService _databaseService = ProxyService.database;
     if (variation != null) {
-      final StockTableData stock = await store.state.database.stockDao
-          .getStockByVariantId(
-              branchId: store.state.branch.id, variantId: variation.id);
-      final VariationTableData variant = await store.state.database.variationDao
-          .getVariationById(variantId: variation.id);
-      await store.state.database.variationDao
-          .updateVariation(variant.copyWith(name: variantName));
 
-      await store.state.database.stockDao.updateStock(
-        stock.copyWith(
-          retailPrice: retailPrice,
-          supplyPrice: supplyPrice,
-        ),
-      );
+      final Document stock = await _databaseService.getById(id:variation.id);
+
+      final Document variant = await _databaseService.getById(id:variation.id);
+     
+      variant.toMutable()
+      .setString('name',variantName);
+      _databaseService.update(document: variant);
+
+      stock.toMutable()
+      .setDouble('retailPrice',retailPrice)
+      .setDouble('supplyPrice',supplyPrice);
+      _databaseService.update(document: stock);
     }
   }
 
@@ -180,8 +182,8 @@ class DataManager {
       final DatabaseService _databaseService = ProxyService.database;
       // ignore: always_specify_types
       final category = await _databaseService.filter(
-        equator: AppTables.category + store.state.branch.id,
-        property: 'tableName',
+        equator: AppTables.category,
+        property: 'table',
         and: true, //define that this query is and type.
         andEquator: 'custom',
         andProperty: 'name',
@@ -192,13 +194,13 @@ class DataManager {
         equator: productName,
         property: 'name',
         and: true,
-        andProperty: 'tableName',
-        andEquator: AppTables.product + store.state.branch.id,
+        andProperty: 'table',
+        andEquator: AppTables.product,
       );
 
       final List<Map<String, dynamic>> gettax = await _databaseService.filter(
-        equator: AppTables.tax + store.state.currentActiveBusiness.id,
-        property: 'tableName',
+        equator: AppTables.tax,
+        property: 'table',
         and: true, //define that this query is and type.
         andEquator: 'Vat',
         andProperty: 'name',
@@ -221,7 +223,7 @@ class DataManager {
           'active': true,
           'hasPicture': false,
           'channels':<String>[userId],
-          'tableName': AppTables.product + store.state.branch.id,
+          'table': AppTables.product,
           'isCurrentUpdate': false,
           'isDraft': true,
           'taxId': Tax.fromMap(gettax[0]['main']).id,
@@ -232,10 +234,10 @@ class DataManager {
 
         final Document variant = await _databaseService.insert(data: {
           'isActive': false,
-          'name': productName,
+          'name': 'Regular',
           'unit': 'kg',
           'channels':<String>[userId],
-          'tableName': AppTables.variation + store.state.branch.id,
+          'table': AppTables.variation ,
           'productId': productDoc.id,
           'sku': Uuid().v1().substring(0, 4),
           'id': Uuid().v1(),
@@ -250,8 +252,7 @@ class DataManager {
           'retailPrice': 0,
           'channels': [userId],
           'isActive': true,
-          // TODO(richard): decide which tableName
-          // 'tableName':AppTables.variation + store.state.branch.id,
+          'table':AppTables.stock,
           'lowStock': 0,
           'currentStock': 0,
           'id': Uuid().v1(),
@@ -263,7 +264,7 @@ class DataManager {
         await _databaseService.insert(data: {
           'branchId': store.state.branch.id,
           'productId': productDoc.id,
-          'tableName': AppTables.branchProduct + store.state.branch.id,
+          'table': AppTables.branchProduct,
           'id': Uuid().v1()
         });
         final Product pro = Product.fromMap(productDoc.toMap());
@@ -297,7 +298,7 @@ class DataManager {
         'id': id,
         'channels':[userId],
         'productId': product.id,
-        'tableName': AppTables.variation + store.state.branch.id
+        'table': AppTables.variation
       });
 
       final List<Map<String, dynamic>> vv = await _databaseService.filter(

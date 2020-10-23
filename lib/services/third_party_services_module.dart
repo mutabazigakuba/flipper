@@ -3,7 +3,9 @@
 import 'package:flipper/services/api/http_api.dart';
 import 'package:flipper/services/bluethooth_service.dart';
 import 'package:flipper/services/database_service.dart';
+import 'package:flipper/services/fetch_contacts_service.dart';
 import 'package:flipper/services/flipperNavigation_service.dart';
+import 'package:flipper/services/mail_service.dart';
 import 'package:flipper/services/performance_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -62,6 +64,12 @@ abstract class ThirdPartyServicesModule {
 
   @lazySingleton
   BlueToothService get blueToothService;
+
+  @lazySingleton
+  MailService get mailService;
+
+  @lazySingleton
+  FetchContactsService fetchContactsService;
 }
 // each time you add a new service run:
 // flutter packages pub run build_runner build --delete-conflicting-outputs

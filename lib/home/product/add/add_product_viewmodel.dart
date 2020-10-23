@@ -1,27 +1,26 @@
 import 'package:flipper/data/main_database.dart';
 import 'package:flipper/domain/redux/app_state.dart';
+import 'package:flipper/model/variation.dart';
+import 'package:couchbase_lite/couchbase_lite.dart';
 import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/routes/router.gr.dart';
-import 'package:flipper/services/flipperNavigation_service.dart';
-import 'package:flipper/services/proxy.dart';
 import 'package:flipper/services/database_service.dart';
+import 'package:flipper/services/proxy.dart';
 import 'package:flipper/utils/data_manager.dart';
 import 'package:flipper/utils/logger.dart';
 import 'package:flipper/viewmodels/base_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-
 import 'package:logger/logger.dart';
 import 'package:redux/redux.dart';
 
 class AddProductViewmodel extends BaseModel {
-
   // FIXME(richard): tomorrow I will work on this after finishing some work on renter app.
 
   final Logger log = Logging.getLogger('add product view model:)');
   // ignore: unused_field
   final DatabaseService _databaseService = ProxyService.database;
-  ActionsTableData _actionsSaveItem;
+  
   // ActionsTableData get actions;
 
   ActionsTableData get action {
@@ -30,16 +29,33 @@ class AddProductViewmodel extends BaseModel {
 
   ActionsTableData _actions;
 
-  bool get isLocked {
-    return _isLocked;
-  }
+  
 
   String _productId;
   String get productId {
     return _productId;
   }
 
-  final bool _isLocked = true;
+  bool get isLocked {
+    return _isLocked;
+  }
+  bool _isLocked = true;
+
+  
+  TextEditingController _supplierPriceController;
+  TextEditingController get supplierPriceController {
+    return _supplierPriceController;
+  }
+
+  TextEditingController _description;
+  TextEditingController get description {
+    return _description;
+  }
+
+  TextEditingController _retailPriceController;
+  TextEditingController get retailPriceController {
+    return _retailPriceController;
+  }
 
   Future<bool> onWillPop({BuildContext context}) async {
     return (await showDialog(
@@ -75,114 +91,92 @@ class AddProductViewmodel extends BaseModel {
     ProxyService.nav.pop();
   }
 
-  Future<bool> handleCreateItem(
+  Future<void> handleCreateItem(
       {CommonViewModel vm, Store<AppState> store}) async {
-    // final Store<AppState> store = StoreProvider.of<AppState>(context);
-
+   
     await updateProduct(
       productId: vm.tmpItem.id,
       categoryId: store.state.category.id,
       vm: vm,
     );
-    final VariationTableData variation = await vm.database.variationDao
-        .getVariationById(variantId: vm.variant.id);
-
-    await DataManager.updateVariation(
-      variation: variation,
-      supplyPrice: DataManager.supplyPrice ?? 0.0,
+    
+    final Document variation = await _databaseService.getById(id:vm.variant.id);
+    
+    await updateVariation(
+      variation: Variation.fromMap(variation.toMap()),
+      supplyPrice: double.parse(supplierPriceController.text),
       store: store,
       variantName: 'Regular',
-      retailPrice: DataManager.retailPrice ?? 0.0,
+      retailPrice: double.parse(retailPriceController.text),
     );
 
-    await resetSaveButtonStatus(vm);
+    _nameController.text ='';//this will reset button to disabled
 
-    return true;
+    notifyListeners();
+
+  }
+  Future<void> updateVariation({
+    Variation variation,
+    Store<AppState> store,
+    double retailPrice,
+    double supplyPrice,
+    String variantName,
+  }) async {
+    if (variation != null) {
+
+      final Document stock = await _databaseService.getById(id:variation.id);
+
+      final Document variant = await _databaseService.getById(id:variation.id);
+     
+      variant.toMutable()
+      .setString('name',variantName);
+      _databaseService.update(document: variant);
+
+      stock.toMutable()
+      .setDouble('retailPrice',retailPrice)
+      .setDouble('supplyPrice',supplyPrice);
+      _databaseService.update(document: stock);
+    }
   }
 
   Future<bool> updateProduct(
       {CommonViewModel vm, String productId, String categoryId}) async {
-    final ProductTableData product =
-        await vm.database.productDao.getProductById(productId: productId);
-
-    await vm.database.productDao.updateProduct(
-      product.copyWith(
-        name: DataManager.name,
-        categoryId: categoryId,
-        updatedAt: DateTime.now(),
-        deletedAt: 'null',
-      ),
-    );
+   
+      final Document product = await _databaseService.getById(id:productId);
+      product.toMutable()
+      .setString('name', nameController.text)
+      .setString('categoryId', categoryId)
+      .setString('updatedAt',  DateTime.now().toIso8601String());
+      
+      _databaseService.update(document: product);
     return true;
   }
 
-  Future<bool> resetSaveButtonStatus(CommonViewModel vm) async {
-    await vm.database.actionsDao
-        .updateAction(_actionsSaveItem.copyWith(isLocked: true));
+  void createVariant({String productId}) {
+    _isLocked = true;
+    notifyListeners();
 
-    await vm.database.actionsDao
-        .updateAction(_actions.copyWith(isLocked: true));
-    return true;
+    ProxyService.nav.navigateTo(Routing.addVariationScreen,
+        arguments: AddVariationScreenArguments(productId:productId));
   }
 
-  void getSaveStatus(CommonViewModel vm) async {
-    final ActionsTableData result =
-        await vm.database.actionsDao.getActionBy('save');
-
-    _actions = result;
+  TextEditingController _nameController;
+  TextEditingController get nameController {
+    return _nameController;
   }
-
-  void getSaveItemStatus(CommonViewModel vm) async {
-    final ActionsTableData result =
-        await vm.database.actionsDao.getActionBy('saveItem');
-
-    _actionsSaveItem = result;
+  void lock() {
+    // ignore: prefer_is_empty
+    log.i(_nameController.text.length);
+    _nameController.text.isEmpty?_isLocked = true:_isLocked = false;
     notifyListeners();
   }
 
-  void createVariant(CommonViewModel vm) {
-    // _getSaveStatus(vm);
-    if (_actions != null) {
-      vm.database.actionsDao.updateAction(_actions.copyWith(isLocked: true));
-      final FlipperNavigationService _navigationService = ProxyService.nav;
-
-      _navigationService.navigateTo(Routing.addVariationScreen,
-          arguments: AddVariationScreenArguments(
-              retailPrice: DataManager.retailPrice,
-              supplyPrice: DataManager.supplyPrice));
-    }
+  void initFields(TextEditingController name,TextEditingController supplier,TextEditingController retail,TextEditingController description) {
+    _nameController = name;
+    _supplierPriceController = supplier;
+    _retailPriceController = retail;
+    _description = description;
   }
-
-  Future<void> updateNameField(String name, CommonViewModel vm) async {
-    if (name == '') {
-      // _getSaveStatus(vm);
-      // _getSaveItemStatus(vm);
-      // if (_actions != null) {
-      //   await vm.database.actionsDao
-      //       .updateAction(_actions.copyWith(isLocked: true));
-      //   _getSaveStatus(vm);
-      //   _getSaveItemStatus(vm);
-      // }
-
-      DataManager.name = name;
-      notifyListeners();
-    } else if (_actions != null) {
-      await vm.database.actionsDao
-          .updateAction(_actions.copyWith(isLocked: false));
-      // _getSaveStatus(vm);
-      // _getSaveItemStatus(vm);
-
-      DataManager.name = name;
-      notifyListeners();
-    } else {
-      // _getSaveStatus(vm);
-      // _getSaveItemStatus(vm);
-
-      DataManager.name = name;
-      notifyListeners();
-    }
-  }
-
   // once full refacored
   // ignore: always_specify_types
   Future getTemporalProduct({BuildContext context, CommonViewModel vm}) async {

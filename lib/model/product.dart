@@ -32,8 +32,10 @@ abstract class Product implements Built<Product, ProductBuilder> {
   @nullable
   bool get isImageLocal;
 
+  @nullable
   bool get touched;
-  String get tableName;
+  
+  String get table;
 
   @nullable
   bool get isDraft;

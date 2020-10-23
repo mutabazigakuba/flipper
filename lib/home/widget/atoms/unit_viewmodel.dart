@@ -31,9 +31,8 @@ class UnitViewModel extends BaseModel{
     //demo of listening on users table on every entry.
     _databaseService
         .observer(
-            equator: AppTables.unit +
-                StoreProvider.of<AppState>(context).state.branch.id,
-            property: 'tableName')
+            equator: AppTables.unit,
+            property: 'table')
         .stream
         .listen((ResultSet event) {
       // _unit = event.allResults();

@@ -22,11 +22,8 @@ class _$TaxSerializer implements StructuredSerializer<Tax> {
       serializers.serialize(object.name, specifiedType: const FullType(String)),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'touched',
-      serializers.serialize(object.touched,
-          specifiedType: const FullType(bool)),
-      'tableName',
-      serializers.serialize(object.tableName,
+      'table',
+      serializers.serialize(object.table,
           specifiedType: const FullType(String)),
       'isDefault',
       serializers.serialize(object.isDefault,
@@ -42,7 +39,12 @@ class _$TaxSerializer implements StructuredSerializer<Tax> {
           specifiedType:
               const FullType(BuiltList, const [const FullType(String)])),
     ];
-
+    if (object.touched != null) {
+      result
+        ..add('touched')
+        ..add(serializers.serialize(object.touched,
+            specifiedType: const FullType(bool)));
+    }
     return result;
   }
 
@@ -69,8 +71,8 @@ class _$TaxSerializer implements StructuredSerializer<Tax> {
           result.touched = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
           break;
-        case 'tableName':
-          result.tableName = serializers.deserialize(value,
+        case 'table':
+          result.table = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
           break;
         case 'isDefault':
@@ -106,7 +108,7 @@ class _$Tax extends Tax {
   @override
   final bool touched;
   @override
-  final String tableName;
+  final String table;
   @override
   final bool isDefault;
   @override
@@ -123,7 +125,7 @@ class _$Tax extends Tax {
       {this.name,
       this.id,
       this.touched,
-      this.tableName,
+      this.table,
       this.isDefault,
       this.percentage,
       this.businessId,
@@ -135,11 +137,8 @@ class _$Tax extends Tax {
     if (id == null) {
       throw new BuiltValueNullFieldError('Tax', 'id');
     }
-    if (touched == null) {
-      throw new BuiltValueNullFieldError('Tax', 'touched');
-    }
-    if (tableName == null) {
-      throw new BuiltValueNullFieldError('Tax', 'tableName');
+    if (table == null) {
+      throw new BuiltValueNullFieldError('Tax', 'table');
     }
     if (isDefault == null) {
       throw new BuiltValueNullFieldError('Tax', 'isDefault');
@@ -169,7 +168,7 @@ class _$Tax extends Tax {
         name == other.name &&
         id == other.id &&
         touched == other.touched &&
-        tableName == other.tableName &&
+        table == other.table &&
         isDefault == other.isDefault &&
         percentage == other.percentage &&
         businessId == other.businessId &&
@@ -185,7 +184,7 @@ class _$Tax extends Tax {
                     $jc(
                         $jc($jc($jc(0, name.hashCode), id.hashCode),
                             touched.hashCode),
-                        tableName.hashCode),
+                        table.hashCode),
                     isDefault.hashCode),
                 percentage.hashCode),
             businessId.hashCode),
@@ -198,7 +197,7 @@ class _$Tax extends Tax {
           ..add('name', name)
           ..add('id', id)
           ..add('touched', touched)
-          ..add('tableName', tableName)
+          ..add('table', table)
           ..add('isDefault', isDefault)
           ..add('percentage', percentage)
           ..add('businessId', businessId)
@@ -223,8 +222,8 @@ class TaxBuilder implements Builder<Tax, TaxBuilder> {
   set touched(bool touched) => _$this._touched = touched;
 
   String _tableName;
-  String get tableName => _$this._tableName;
-  set tableName(String tableName) => _$this._tableName = tableName;
+  String get table => _$this._tableName;
+  set table(String table) => _$this._tableName = table;
 
   bool _isDefault;
   bool get isDefault => _$this._isDefault;
@@ -250,7 +249,7 @@ class TaxBuilder implements Builder<Tax, TaxBuilder> {
       _name = _$v.name;
       _id = _$v.id;
       _touched = _$v.touched;
-      _tableName = _$v.tableName;
+      _tableName = _$v.table;
       _isDefault = _$v.isDefault;
       _percentage = _$v.percentage;
       _businessId = _$v.businessId;
@@ -282,7 +281,7 @@ class TaxBuilder implements Builder<Tax, TaxBuilder> {
               name: name,
               id: id,
               touched: touched,
-              tableName: tableName,
+              table: table,
               isDefault: isDefault,
               percentage: percentage,
               businessId: businessId,

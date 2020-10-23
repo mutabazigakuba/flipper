@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:couchbase_lite/couchbase_lite.dart';
 import 'package:flipper/couchbase.dart';
 import 'package:flipper/data/observable_response.dart';
-import 'package:flipper/home/open_close_drawerview.dart';
 import 'package:flipper/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
@@ -14,71 +13,10 @@ import 'package:uuid/uuid.dart';
 // query example: https://github.com/SaltechSystems/couchbase_lite/blob/master/example/lib/data/database.dart
 class DatabaseService {
   final Logger log = Logging.getLogger('Database service  Model ....');
-  final Database dbInstance = AppDatabase.instance.database;
+ 
   // ignore: always_specify_types
   List<Future> pendingListeners = [];
-  @deprecated //use insert and update function no need to define every action functons here
-  Future<void> saveDrawerHistory({
-    double float,
-    String note,
-    String businessId,
-    String userId,
-    BusinessState businessState,
-  }) async {
-    // ignore: always_specify_types
-    final Map<String, dynamic> businessMap = {
-      'float': float,
-      'businessState': businessState == BusinessState.OPEN ? 'Open' : 'Close',
-      'note': note,
-      'businessId': businessId,
-      'userId': userId,
-      // ignore: always_specify_types
-      'channels': [userId],
-      'uid': Uuid().v1()
-    };
-    try {
-      final MutableDocument newDoc =
-          MutableDocument(id: businessId, data: businessMap);
-      await AppDatabase.instance.database.saveDocument(newDoc);
-    } on PlatformException {
-      return 'Error saving document';
-    }
-  }
-
-  @deprecated
-  Future<void> openCloseBusiness({
-    String userId,
-    String name,
-    bool isSocial = false,
-    String businessId,
-    bool isClosed = true,
-  }) async {
-    final Document document =
-        await AppDatabase.instance.database.document(userId);
-
-    final Map<String, dynamic> buildMap = {
-      'tableName': 'switcher_' + userId,
-      'name': name,
-      'isClosed': isClosed,
-      'isSocial': isSocial,
-      'businessId': businessId,
-      // ignore: always_specify_types
-      'channels': [userId]
-    };
-    if (document == null) {
-      try {
-        final MutableDocument newDoc =
-            MutableDocument(id: userId, data: buildMap);
-        await AppDatabase.instance.database.saveDocument(newDoc);
-        // ignore: empty_catches
-      } on PlatformException {}
-    } else {
-      final MutableDocument mutableDoc =
-          document.toMutable().setBoolean('isClosed', isClosed);
-      AppDatabase.instance.database.saveDocument(mutableDoc);
-    }
-  }
-
+  
   Future<bool> documentExist({String property, String equator}) async {
     final Where query = QueryBuilder.select([SelectResult.all()])
         .from(AppDatabase.instance.dbName)
@@ -87,12 +25,10 @@ class DatabaseService {
     final ResultSet result = await query.execute();
     return result.allResults().isNotEmpty;
   }
-
   // products functions
-  // TODO(richard): save custom product function
-  // TODO(richard): getItemBy name Function
-  Future<dynamic> getById({String id}) async {
-    return await dbInstance.document(id);
+ 
+  Future<Document> getById({String id}) async {
+    return await AppDatabase.instance.database.document(id);
   }
 
   // A filter query to look for a document muck like select * from where name =sth and email =sth
@@ -140,11 +76,11 @@ class DatabaseService {
   }
 
   Future<Document> insert({String id, Map data}) async {
-    log.d(data);
+    final String _id = id ?? Uuid().v1();
     final MutableDocument newDoc =
-        MutableDocument(id: id ?? Uuid().v1(), data: data);
+        MutableDocument(id: _id, data: data);
     await AppDatabase.instance.database.saveDocument(newDoc);
-    return newDoc;
+    return getById(id: _id);
   }
 
   ObservableResponse<ResultSet> observer({

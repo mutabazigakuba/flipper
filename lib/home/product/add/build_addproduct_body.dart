@@ -13,9 +13,9 @@ import 'package:flipper/home/widget/supplier/supply_price_widget.dart';
 
 import 'package:flipper/presentation/home/common_view_model.dart';
 import 'package:flipper/services/proxy.dart';
+import 'package:flipper/utils/HexColor.dart';
 import 'package:flipper/utils/validators.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:stacked/stacked.dart';
 
 import 'add_product_viewmodel.dart';
@@ -24,14 +24,18 @@ class BuildAddProductBody extends StatelessWidget {
   const BuildAddProductBody({Key key, this.vm}) : super(key: key);
   final CommonViewModel vm;
 
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<AddProductViewmodel>.reactive(
       viewModelBuilder: () => AddProductViewmodel(),
-      onModelReady: (AddProductViewmodel model) => model.getTemporalProduct(vm: vm,context: context),
+      onModelReady: (AddProductViewmodel model) {
+        model.getTemporalProduct(vm: vm,context: context);
+        model.initFields(TextEditingController(),TextEditingController(),TextEditingController(),TextEditingController());
+      },
       builder: (BuildContext context, AddProductViewmodel model, Widget child) {
         if(model.busy){
-          return const CircularProgressIndicator();
+          return const SizedBox.shrink();
         }
         return WillPopScope(
           onWillPop: model.onWillPop,
@@ -41,7 +45,7 @@ class BuildAddProductBody extends StatelessWidget {
                 ProxyService.nav.pop();
               },
               title: 'Create Product',
-              disableButton: model.action == null ? true : model.isLocked,
+              disableButton: model.isLocked,
               showActionButton: true,
               onPressedCallback: () async {
                 await model.handleCreateItem(vm: vm);
@@ -62,88 +66,82 @@ class BuildAddProductBody extends StatelessWidget {
                     BuildImageHolder(
                       vm: vm,
                     ),
-                    Text(
-                      'Product',
-                      style: GoogleFonts.lato(
-                        fontStyle: FontStyle.normal,
-                        color: Theme.of(context).accentColor,
-                        fontSize:
-                            Theme.of(context).textTheme.bodyText1.fontSize,
-                      ),
+                   const Text(
+                      'Product'
                     ),
                     //nameField
-                    Center(
+                    Padding(
+                      padding: const EdgeInsets.only(left:18,right:18),
                       child: Container(
-                        width: 300,
+                        width: double.infinity,
                         child: TextFormField(
-                          style: GoogleFonts.lato(
-                            fontStyle: FontStyle.normal,
-                            color: Theme.of(context).accentColor,
-                            fontSize:
-                                Theme.of(context).textTheme.bodyText1.fontSize,
-                          ),
+                          style: Theme.of(context).textTheme.bodyText1.copyWith(color:Colors.black),
+                          controller: model.nameController,
                           validator: Validators.isValid,
                           onChanged: (String name) async {
-                            await model.updateNameField(name, vm);
+                            model.lock();
                           },
-                          decoration: const InputDecoration(
-                            hintText: 'Name',
-                            focusColor: Colors.black,
+                           decoration: InputDecoration(
+                            hintText: 'Product name',
+                            fillColor: Theme.of(context)
+                                .copyWith(canvasColor: Colors.white)
+                                .canvasColor,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: HexColor('#D0D7E3')),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const CategorySection(),
-                    CenterDivider(
+                    const CenterDivider(
                       width: 300,
                     ),
                     const ListDivider(
                       height: 24,
                     ),
-                    Center(
+                    Padding(
+                      padding: const EdgeInsets.only(left:18,right:18),
                       child: Container(
-                        width: 300,
-                        child: Text(
+                        width: double.infinity,
+                        child:const Text(
                           'PRICE AND INVENTORY',
-                          style: GoogleFonts.lato(
-                            fontStyle: FontStyle.normal,
-                            color: Theme.of(context).accentColor,
-                            fontSize: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                                .copyWith(fontSize: 12)
-                                .fontSize,
-                          ),
                         ),
                       ),
                     ),
 
-                    CenterDivider(
-                      width: 300,
+                    const CenterDivider(
+                      width: double.infinity,
                     ),
                     const SectionSelectUnit(),
-                    Center(
-                      child: Container(
-                        width: 300,
-                        child: const Divider(
-                          color: Colors.black,
-                        ),
-                      ),
+                    const CenterDivider(
+                      width: double.infinity,
                     ),
                     RetailPriceWidget(
-                      productId: model.productId,
+                      models: model, //add productmodel
+                    ),
+                    const CenterDivider(
+                      width: double.infinity,
                     ),
                     SupplyPriceWidget(
                       vm: vm,
+                      addModel: model,
                     ),
+                    
                     const SkuView(),
                     VariationList(productId: vm.tmpItem.id),
                     AddVariant(
                       onPressedCallback: () {
-                        model.createVariant(vm);
+                        model.createVariant(productId:model.productId);
                       },
                     ),
-                    DescriptionWidget()
+                     const CenterDivider(
+                      width: double.infinity,
+                    ),
+                    DescriptionWidget(model:model)
                   ],
                 ),
               ],

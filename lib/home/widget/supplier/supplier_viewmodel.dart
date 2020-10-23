@@ -24,9 +24,8 @@ class SupplierViewmodel extends BaseModel {
     log.i('loading variation of ProductId:' + productId);
     _databaseService
         .observer(
-            equator: AppTables.variation +
-                StoreProvider.of<AppState>(context).state.branch.id,
-            property: 'tableName',
+            equator: AppTables.variation,
+            property: 'table',
             and: true,
             andProperty: 'productId',
             andEquator: productId)

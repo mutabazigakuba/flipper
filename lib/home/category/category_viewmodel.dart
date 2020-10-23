@@ -29,9 +29,8 @@ class CategoryViewModel extends BaseModel {
     //demo of listening on users table on every entry.
     _databaseService
         .observer(
-            equator: AppTables.category +
-                StoreProvider.of<AppState>(context).state.branch.id,
-            property: 'tableName')
+            equator: AppTables.category,
+            property: 'table')
         .stream
         .listen((ResultSet event) {
       // _category = event.allResults();
